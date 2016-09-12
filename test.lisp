@@ -117,15 +117,19 @@
 (defmacro define-test (name &body arguments-and-body)
   (destructuring-bind (parent name) (if (listp name) name (list NIL name))
     (form-fiddle:with-body-options (body options kparent (test-class 'test)) arguments-and-body
-      (when (and parent kparent)
-        (error "Cannot specify parent through name and through a keyword argument at the same time!"))
-      `(let ((*package* ,*package*)) ; Make sure package stays consistent throughout initialisation.
-         (setf (find-test ',name *package*)
-               (make-instance ',test-class
-                              :name ',name
-                              :home *package*
-                              :test-body (lambda () ,@body)
-                              :parent ',(or parent kparent)
-                              ,@(loop for option in options
-                                      collect `',option)))
-              ',name))))
+      (let ((body (remove 'define-test body :key (lambda (a) (when (listp a) (car a))) :test #'eql))
+            (defs (remove 'define-test body :key (lambda (a) (when (listp a) (car a))) :test-not #'eql)))
+        (when (and parent kparent)
+          (error "Cannot specify parent through name and through a keyword argument at the same time!"))
+        `(let ((*package* ,*package*)) ; Make sure package stays consistent throughout initialisation.
+           (setf (find-test ',name *package*)
+                 (make-instance ',test-class
+                                :name ',name
+                                :home *package*
+                                :test-body (lambda () ,@body)
+                                :parent ',(or parent kparent)
+                                ,@(loop for option in options
+                                        collect `',option)))
+           ,@(loop for (def subname . body) in defs
+                   collect `(,def (,name ,subname) ,@body))
+           ',name)))))
