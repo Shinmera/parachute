@@ -14,17 +14,7 @@
 (defgeneric failed-tests (report))
 (defgeneric skipped-tests (report))
 (defgeneric timing (report &optional test))
-(defgeneric run (test-ish report))
 (defgeneric report (result report))
-
-(defclass result ()
-  ((about :initarg :test :accessor about)
-   (status :initarg :status :accessor status)
-   (duration :initarg :duration :accessor duration))
-  (:default-initargs
-   :test (error "TEST required.")
-   :status :running
-   :duration NIL))
 
 (defclass report ()
   ((about :initarg :test :accessor about)
@@ -48,7 +38,7 @@
 (defun tests-with-status (status report)
   (loop for result in (results report)
         when (eql status (status result))
-        collect (test result)))
+        collect (about result)))
 
 (defmethod passed-tests ((report report))
   (tests-with-status :passed report))
@@ -63,31 +53,42 @@
   (timing (test-result report (or test (about report)))))
 
 (defun test (test-name &rest args &key (report 'plain) &allow-other-keys)
-  (let ((test (find-test test-name)))
-    (run test (apply #'make-instance report :test test args))
-    (report report report)))
+  (let* ((test (find-test test-name))
+         (*report* (apply #'make-instance report :test test args)))
+    (run *report* test)
+    (report *report* *report*)))
 
-(defmethod run :around ((test test) (report report))
+(defmethod run :around ((report report) (test test))
   (unless (test-result report test)
     (call-next-method)))
 
-(defmethod run :before ((test test) (report report))
+(defmethod run :before ((report report) (test test))
   (dolist (dep (dependencies test))
-    (run dep report)))
+    (run report dep)))
 
-(defmethod run ((test test) (report report))
-  (let ((*report* report)
-        (result (make-instance 'result :test test)))
+(defmethod run ((report report) (test test))
+  (let ((result (make-instance 'result :test test)))
     (setf (test-result report test) result)
-    (unless (loop for dep in (dependencies test)
-                  thereis (eql :failed (test-status report dep)))
-      (funcall (test-body test))
-      (dolist (child (if (serial test)
-                         (children test)
-                         (shuffle (children test))))
-        (run child report)))))
+    (cond ((loop for dep in (dependencies test)
+                 thereis (eql :failed (test-status report dep)))
+           (setf (status result) :skipped))
+          (T
+           (run result (test-body test))
+           (dolist (child (if (serial test)
+                              (children test)
+                              (shuffle (children test))))
+             (run report child))
+           (setf (status result) :passed)))))
 
-(defmethod run :after ((test test) (report report))
+(defmethod run ((report report) (func function))
+  (let ((result (make-instance 'result :test func)))
+    (setf (test-result report func) result)
+    (setf (status result)
+          (if (run func result)
+              :passed
+              :failed))))
+
+(defmethod run :after ((report report) (test test))
   (report (test-result report test) report))
 
 (defvar *level* 0)
@@ -95,22 +96,27 @@
 (defclass plain (report)
   ())
 
-(defmethod run :around (test (report report))
-  (let ((*level* (1+ *level*)))
-    (call-next-method)))
+(defmethod run :around ((report plain) test)
+  (call-next-method))
 
-(defmethod run (test (report report))
-  (handler-case (call-next-method)
-    (error (err)
-      (declare (ignore err))
-      (setf (status (test-result report test)) :failed))))
+(defmethod run ((report plain) test)
+  (let ((*level* (1+ *level*)))
+    (handler-case (call-next-method)
+      (error (err)
+        (declare (ignore err))
+        (setf (status (test-result report test)) :failed)))))
 
 (defmethod report ((result result) (report plain))
-  (format T "~& ~6,3f ~a~v@{    ~} ~a~%"
+  (format T "~& ~:[      ~;~:*~6,3f~] ~a~v@{    ~} ~a~%"
           (duration result)
+          (case (status result)
+            (:passed  #+asdf-unicode "✔" #-asdf-unicode "o")
+            (:failed  #+asdf-unicode "✘" #-asdf-unicode "x")
+            (:skipped #+asdf-unicode "ー" #-asdf-unicode "-")
+            (T        #+asdf-unicode "？" #-asdf-unicode "?"))
           *level*
-          (case (status result) (:passed "o") (:failed "x") (:skipped "."))
-          (present report :oneline)))
+          (present result :oneline))
+  (force-output))
 
 (defmethod report ((a plain) (report plain))
   (format T "~&~%~
@@ -118,9 +124,9 @@
              Passed:  ~4d~%~
              Failed:  ~4d~%~
              Skipped: ~4d~%~
-             ~%~
+             ~@[~%~
              ;; Failed tests:~%~
-             ~{~a~%~}"
+             ~{~a~%~}~]"
           (length (passed-tests report))
           (length (failed-tests report))
           (length (skipped-tests report))

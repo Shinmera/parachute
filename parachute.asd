@@ -16,6 +16,7 @@
   :components ((:file "package")
                (:file "toolkit")
                (:file "test")
+               (:file "result")
                (:file "report")
                ;(:file "tester")
                (:file "documentation"))

@@ -49,12 +49,10 @@
       (unless parent
         (error "Could not find a parent by the name of ~a within ~a's home ~a!"
                parent name home))
-      ;; Add yourself to the children list directly. We don't want to defer
-      ;; dereferencing of children/parent relationships until later.
-      (setf (children parent) (list* test (remove name (children parent) :key #'name :test #'equal))))))
+      (setf (parent test) parent))))
 
 (defmethod dependencies ((test test))
-  (loop for dep in (dependencies test)
+  (loop for dep in (referenced-dependencies test)
         for (home name) = (if (listp dep) dep (list (home test) dep))
         for dependant-test = (find-test name home)
         if dependant-test
@@ -65,7 +63,7 @@
                    name (name test) home)))
 
 (defmethod skipped-children ((test test))
-  (loop for dep in (dependencies test)
+  (loop for dep in (referenced-skips test)
         for (home name) = (if (listp dep) dep (list (home test) dep))
         for dependant-test = (find-test name home)
         when dependant-test
@@ -99,6 +97,12 @@
     ;; that they are properly erased from the system wholly.
     (when (find-test name package-ish)
       (remove-test name package-ish))
+    ;; Add the test to the children list directly. We can't do that in the class'
+    ;; init function as then the child would be removed again in the above call.
+    (when (parent test-instance)
+      (setf (children (parent test-instance))
+            (list* test-instance (remove (name test-instance) (children (parent test-instance))
+                                         :key #'name :test #'equal))))
     (setf (gethash (string name) index) test-instance)))
 
 (defun remove-test (name &optional package-ish)
@@ -118,9 +122,10 @@
       `(let ((*package* ,*package*)) ; Make sure package stays consistent throughout initialisation.
          (setf (find-test ',name *package*)
                (make-instance ',test-class
+                              :name ',name
                               :home *package*
                               :test-body (lambda () ,@body)
-                              :parent ,(or parent kparent)
+                              :parent ',(or parent kparent)
                               ,@(loop for option in options
                                       collect `',option)))
               ',name))))
