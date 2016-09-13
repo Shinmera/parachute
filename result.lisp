@@ -26,7 +26,8 @@
          (funcall func)
       (setf (duration result)
             (/ (- (get-internal-real-time) start)
-               internal-time-units-per-second)))))
+               internal-time-units-per-second))))
+  result)
 
 (defmethod present ((result result) (type (eql :oneline)))
   (typecase (about result)

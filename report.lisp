@@ -79,7 +79,8 @@
                (run result test))
              (dolist (child (maybe-shuffle (children test)))
                (run report child))
-             (setf (status result) :passed))))))
+             (setf (status result) :passed)))
+      result)))
 
 (defmethod run ((report report) (func function))
   (let ((result (make-instance 'result :test func)))
@@ -87,7 +88,8 @@
     (setf (status result)
           (if (run func result)
               :passed
-              :failed))))
+              :failed))
+    result))
 
 (defmethod run :after ((report report) (test test))
   (report (test-result report test) report))
@@ -97,15 +99,14 @@
 (defclass plain (report)
   ())
 
-(defmethod run :around ((report plain) test)
-  (call-next-method))
-
 (defmethod run ((report plain) test)
   (let ((*level* (1+ *level*)))
     (handler-case (call-next-method)
       (error (err)
         (declare (ignore err))
-        (setf (status (test-result report test)) :failed)))))
+        (let ((result (test-result report test)))
+          (setf (status result) :failed)
+          result)))))
 
 (defmethod report ((result result) (report plain))
   (format T "~& ~:[      ~;~:*~6,3f~] ~a~v@{    ~} ~a~%"
@@ -152,7 +153,8 @@
       (setf (status (test-result report test)) :passed))
     (skip ()
       :report (lambda (s) (format s "Continue, skipping ~a." test))
-      (setf (status (test-result report test)) :skipped))))
+      (setf (status (test-result report test)) :skipped)))
+  (test-result report test))
 
 (defmethod report (result (report interactive)))
 
