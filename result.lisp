@@ -20,6 +20,15 @@
    :duration NIL
    :description NIL))
 
+(defmethod passed-p ((result result))
+  (eql :passed (status result)))
+
+(defmethod failed-p ((result result))
+  (eql :failed (status result)))
+
+(defmethod skipped-p ((result result))
+  (eql :skipped (status result)))
+
 (defmethod run ((result result) (func function))
   (let ((start (get-internal-real-time)))
     (unwind-protect
