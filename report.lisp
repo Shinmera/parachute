@@ -76,10 +76,12 @@
              (setf (status result) :skipped))
             (T
              (dolist (test (maybe-shuffle (tests test)))
-               (run result test))
+               (when (eql :failed (status (run result test)))
+                 (setf (status result) :failed)))
              (dolist (child (maybe-shuffle (children test)))
                (run report child))
-             (setf (status result) :passed)))
+             (unless (eql :failed (status result))
+               (setf (status result) :passed))))
       result)))
 
 (defmethod run ((report report) (func function))
