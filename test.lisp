@@ -25,7 +25,7 @@
    (fixtures :initarg :fix :initarg :fixtures :accessor fixtures)
    (time-limit :initarg :time-limit :accessor time-limit)
    (skipped-children :initarg :skip :initarg :skipped-children :accessor referenced-skips)
-   (test-body :initarg :test-body :accessor test-body)
+   (tests :initarg :tests :accessor tests)
    (serial :initarg :serial :accessor serial))
   (:default-initargs
    :name (error "NAME required.")
@@ -36,7 +36,7 @@
    :time-limit NIL
    :skipped-children NIL
    :serial T
-   :test-body (lambda ())))
+   :tests ()))
 
 (defmethod initialize-instance :after ((test test) &key parent home name)
   ;; We dereference the dependencies at a later point so just warn for now.
@@ -126,7 +126,8 @@
                  (make-instance ',test-class
                                 :name ',name
                                 :home *package*
-                                :test-body (lambda () ,@body)
+                                :test-body (list ,@(loop for form in body
+                                                         collect `(lambda () ,form)))
                                 :parent ',(or parent kparent)
                                 ,@(loop for option in options
                                         collect `',option)))
