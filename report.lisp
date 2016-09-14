@@ -16,27 +16,24 @@
 (defgeneric timing (report &optional test))
 (defgeneric report (result report))
 
-(defclass report ()
-  ((about :initarg :test :accessor about)
-   (results :initform NIL :accessor results))
-  (:default-initargs
-   :test (error "TEST required.")))
+(defclass report (subtest-result)
+  ())
 
 (defmethod completed-tests ((report report))
-  (mapcar #'test (results report)))
+  (mapcar #'test (children report)))
 
 (defmethod test-result ((report report) test)
-  (find (find-test test) (results report) :key #'about))
+  (find (find-test test) (children report) :key #'about))
 
 (defmethod (setf test-result) (result (report report) test)
-  (setf (results report) (list* result (remove test (results report) :key #'about))))
+  (setf (children report) (list* result (remove test (children report) :key #'about))))
 
 (defmethod test-status ((report report) test)
   (let ((result (test-result report test)))
     (when result (status result))))
 
 (defun tests-with-status (status report)
-  (loop for result in (results report)
+  (loop for result in (children report)
         when (eql status (status result))
         collect (about result)))
 
@@ -69,7 +66,7 @@
 (defmethod run ((report report) (test test))
   (flet ((maybe-shuffle (list)
            (if (serial test) list (shuffle list))))
-    (let ((result (make-instance 'result :test test)))
+    (let ((result (make-instance 'test-result :test test)))
       (setf (test-result report test) result)
       (cond ((loop for dep in (dependencies test)
                    thereis (failed-p (test-result report dep)))
@@ -111,7 +108,7 @@
           (setf (status result) :failed)
           result)))))
 
-(defmethod report ((result result) (report plain))
+(defmethod report ((result test-result) (report plain))
   (format T "~& ~:[      ~;~:*~6,3f~] ~a~v@{    ~} ~a~%"
           (duration result)
           (case (status result)
