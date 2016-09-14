@@ -41,7 +41,7 @@
 (defmethod present ((result result) (type (eql :oneline)))
   (typecase (about result)
     (test (name (about result)))
-    (T (princ-to-string (about result)))))
+    (T (write-to-string (about result) :case :downcase :escape NIL :readably NIL))))
 
 (defmethod present ((result result) (type (eql :extensive)))
   (with-output-to-string (out)
