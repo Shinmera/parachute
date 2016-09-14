@@ -6,25 +6,61 @@
 
 (in-package #:org.shirakumo.parachute)
 
-(defmacro define-tester (name args &body body))
+(defclass test-result ()
+  ((expression :initarg :expression :accessor expression)
+   (description :initarg :description :accessor description)))
 
-(define-tester true (form)
-  (emit-tests (funcall form)))
+(defclass comparison-result (test-result)
+  ((result :initarg :result :accessor result)
+   (expected :initarg :expected :accessor expected)
+   (comparison :initarg :comparison :accessor comparison)))
 
-(define-tester false (form)
-  (emit-tests (not (funcall form))))
+(defclass subtest-result (test-result)
+  ((children :initarg :children :accessor children)))
 
-(define-tester fail (form &optional (condition 'error))
-  (emit-tests
-   (handler-case
-       (progn (funcall form) NIL)
-     (error (err)
-       (typep err condition)))))
+(defmacro true (form &optional description &rest format-args)
+  `(make-instance 'comprison-result
+                  :expression ',form
+                  :result ,form
+                  :expected '(not null)
+                  :comparison 'typep
+                  ,@(when description
+                      `(:description (format NIL ,description ,@format-args)))))
 
-(define-tester of-type (type form)
-  (emit-tests
-   (typep (funcall form) type)))
+(defmacro false (form &optional description &rest format-args)
+  `(make-instance 'comprison-result
+                  :expression ',form
+                  :result ,form
+                  :expected 'null
+                  :comparison 'typep
+                  ,@(when description
+                      `(:description (format NIL ,description ,@format-args)))))
 
-(define-tester is (comparator expected form)
-  (emit-tests
-   (funcall comparator expected (funcall form))))
+(defmacro is (comp expected form &optional description &rest format-args)
+  (let ((exp (gensym "EXP")))
+    `(let ((,exp ,expected))
+       (make-instance 'comprison-result
+                      :expression ',form
+                      :result ,form
+                      :expected ,exp
+                      :comparison ',comp
+                      ,@(when description
+                          `(:description (format NIL ,description ,@format-args)))))))
+
+(defmacro fail (form &optional description &rest format-args)
+  `(make-instance 'comprison-result
+                  :expression ',form
+                  :result (nth-value 1 (ignore-errors ,form))
+                  :expected 'error
+                  :comparison 'typep
+                  ,@(when description
+                      `(:description (format NIL ,description ,@format-args)))))
+
+(defmacro of-type (type form &optional description &rest format-args)
+  `(make-instance 'comprison-result
+                  :expression ',form
+                  :result (type-of ,form)
+                  :expected ',type
+                  :comparison 'typep
+                  ,@(when description
+                      `(:description (format NIL ,description ,@format-args)))))
