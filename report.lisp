@@ -8,7 +8,7 @@
 
 (defun resolve-test (name)
   (etypecase name
-    (list (mapcar #'resolve-test name))
+    (list (mapcan #'resolve-test name))
     (package (package-tests name))
     (symbol (cond ((find-test name)
                    (list (find-test name)))
