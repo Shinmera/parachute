@@ -126,8 +126,8 @@
                  (make-instance ',test-class
                                 :name ',name
                                 :home *package*
-                                :test-body (list ,@(loop for form in body
-                                                         collect `(lambda () ,form)))
+                                :tests (list ,@(loop for form in body
+                                                     collect `(lambda () ,form)))
                                 :parent ',(or parent kparent)
                                 ,@(loop for option in options
                                         collect `',option)))
