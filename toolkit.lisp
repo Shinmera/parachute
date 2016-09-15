@@ -34,7 +34,9 @@
               (not #+:lispworks (sys:symbol-constant-p symbol)
                    #-:lispworks (constantp symbol)))
      (list :variable (symbol-value symbol)))
-   (when (fboundp symbol)
+   (when (and (fboundp symbol) ;; We want to avoid package lock clashes.
+              (not #+sbcl (sb-ext:package-locked-p (symbol-package symbol))
+                   #-sbcl (eql (find-package :cl) (symbol-package symbol))))
      (if (macro-function symbol)
          (list :macro (macro-function symbol))
          (list :function (fdefinition symbol))))))
@@ -44,10 +46,7 @@
     (symbol
      (if (and (not (keywordp fixture))
               (symbol-package fixture))
-         ;; We want to avoid package lock clashes.
-         (unless #+sbcl (sb-ext:package-locked-p (symbol-package fixture))
-                 #-sbcl (eql (find-package :cl) (symbol-package fixture))
-                 (list (symbol-fixture fixture)))
+         (list (symbol-fixture fixture))
          (package-fixture fixture)))
     (string
      (package-fixture fixture))))
