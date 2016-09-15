@@ -67,6 +67,9 @@
 (defmethod report-on ((result result) (report plain))
   (write-string (print-object result :oneline)))
 
+(defun filter-test-results (results)
+  (remove-if (lambda (a) (typep a 'test-result)) results))
+
 (defmethod summarize ((report plain))
   (let ((failures (results-with-status :failed report)))
     (format T "~&~%~
@@ -74,9 +77,9 @@
              Passed:  ~4d~%~
              Failed:  ~4d~%~
              Skipped: ~4d~%"
-            (length (results-with-status :passed report))
-            (length failures)
-            (length (results-with-status :skipped report)))
+            (length (filter-test-results (results-with-status :passed report)))
+            (length (filter-test-results failures))
+            (length (filter-test-results (results-with-status :skipped report))))
     (when failures
       (format T "~&~%;; Failures:~%")
       (dolist (failure failures)
