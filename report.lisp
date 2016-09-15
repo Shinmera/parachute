@@ -116,7 +116,7 @@
     (when failures
       (format T "~&~%;; Failures:~%")
       (dolist (failure failures)
-        (when (typep (expression failure) 'test)
+        (when (typep failure 'test-result)
           (let ((failures (results-with-status :failed failure)))
             (format T "~& ~4d/~4d tests failed in ~a:~%"
                     (length failures) (length (children failure))

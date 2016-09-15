@@ -101,7 +101,7 @@
   ((children :initform (make-array 0 :adjustable T :fill-pointer T) :accessor children)))
 
 (defmethod result-for-testable ((test test) (result parent-result))
-  (or (find test (children result) :key #'expression)
+  (or (find-child-result test result)
       (call-next-method)))
 
 (defmethod eval-in-context :around (context (result parent-result))
