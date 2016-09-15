@@ -59,16 +59,17 @@
               (symbol-package fixture))
          (list (list*
                 fixture
-                (loop for hook in *fixture-capture-hooks*
-                      append (funcall hook fixture))))
+                (loop for type being the hash-keys of *fixture-capture-hooks*
+                      for (value captured-p) = (funcall (gethash type *fixture-capture-hooks*) fixture)
+                      when captured-p collect (cons type value))))
          (package-fixture fixture)))
     (string
      (package-fixture fixture))))
 
 (defun restore-fixtures (fixtures)
   (loop for (fixture . value) in fixtures
-        do (loop for (k v) on value by #'cddr
-                 do (funcall (gethash k *fixture-restore-hooks*) fixture v))))
+        do (loop for (type value) in value
+                 do (funcall (gethash type *fixture-restore-hooks*) fixture value))))
 
 (defun call-with-fixtures (function fixtures)
   (let ((values (mapcan #'fixture-values fixtures)))
