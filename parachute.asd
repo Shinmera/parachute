@@ -15,6 +15,7 @@
   :serial T
   :components ((:file "package")
                (:file "toolkit")
+               (:file "fixture")
                (:file "test")
                (:file "result")
                (:file "tester")

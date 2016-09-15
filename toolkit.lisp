@@ -19,51 +19,6 @@
         unless found collect k
         unless found collect v))
 
-(defun package-fixture (name)
-  (let* ((package (or (find-package name)
-                      (error "No package with the name ~s found." name)))
-         (symbols (loop for s being the symbols of package
-                        collect s)))
-    (mapcan #'fixture-values symbols)))
-
-(defun symbol-fixture (symbol)
-  ;; Can't use constants.
-  (nconc
-   (list symbol)
-   (when (and (boundp symbol)
-              (not #+:lispworks (sys:symbol-constant-p symbol)
-                   #-:lispworks (constantp symbol)))
-     (list :variable (symbol-value symbol)))
-   (when (and (fboundp symbol) ;; We want to avoid package lock clashes.
-              (not #+sbcl (sb-ext:package-locked-p (symbol-package symbol))
-                   #-sbcl (eql (find-package :cl) (symbol-package symbol))))
-     (if (macro-function symbol)
-         (list :macro (macro-function symbol))
-         (list :function (fdefinition symbol))))))
-
-(defun fixture-values (fixture)
-  (etypecase fixture
-    (symbol
-     (if (and (not (keywordp fixture))
-              (symbol-package fixture))
-         (list (symbol-fixture fixture))
-         (package-fixture fixture)))
-    (string
-     (package-fixture fixture))))
-
-(defun restore-fixtures (fixtures)
-  (loop for (fixture . value) in fixtures
-        do (loop for (k v) on value by #'cddr
-                 do (case k
-                      (:variable (setf (symbol-value fixture) v))
-                      (:macro (setf (macro-function fixture) v))
-                      (:function (setf (fdefinition fixture) v))))))
-
-(defun call-with-fixtures (function fixtures)
-  (let ((values (mapcan #'fixture-values fixtures)))
-    (unwind-protect
-         (funcall function)
-      (restore-fixtures values))))
-
-(defmacro with-fixture (fixtures &body body)
-  `(call-with-fixtures (lambda () ,@body) ,fixtures))
+(defun locked-package-p (package)
+  #+sbcl (sb-ext:package-locked-p package)
+  #-sbcl (eql (find-package :cl) package))
