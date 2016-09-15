@@ -8,14 +8,6 @@
 
 (defvar *test-indexes* (make-hash-table :test 'eq))
 
-(defgeneric name (test))
-(defgeneric parent (test))
-(defgeneric children (test))
-(defgeneric dependencies (test))
-(defgeneric fixtures (test))
-(defgeneric time-limit (test))
-(defgeneric skipped-children (test))
-
 (defclass test ()
   ((name :initarg :name :reader name)
    (home :initarg :home :reader home)
