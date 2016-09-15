@@ -32,9 +32,9 @@
 
 (defmethod initialize-instance :after ((result result) &key)
   (when *parent* ;; I wish I had a better place for this...
-    (push result (children *parent*)))
-  (when *context*
-    (pushnew result (children *context*))))
+    (vector-push-extend result (children *parent*)))
+  (when (and *context* (not (find result (children *context*))))
+    (vector-push-extend result (children *context*))))
 
 (defmethod print-object ((result result) stream)
   (print-unreadable-object (result stream :type T)
@@ -91,9 +91,7 @@
       (setf (status result) :failed)))
 
 (defclass parent-result (result)
-  ((children :initarg :children :accessor children))
-  (:default-initargs
-   :children NIL))
+  ((children :initform (make-array 0 :adjustable T :fill-pointer T) :accessor children)))
 
 (defmethod result-for-testable ((test test) (result parent-result))
   (or (find test (children result) :key #'expression)
@@ -104,7 +102,7 @@
     (call-next-method)))
 
 (defmethod eval-in-context :after (context (result parent-result))
-  (when (loop for child in (children result)
+  (when (loop for child across (children result)
               thereis (eql :failed (status child)))
     (setf (status result) :failed)))
 
@@ -112,7 +110,7 @@
   (find test (children result) :key #'expression :test #'eq))
 
 (defmethod results-with-status (status (result parent-result))
-  (loop for result in (children result)
+  (loop for result across (children result)
         when (eql status (status result))
         collect result))
 
