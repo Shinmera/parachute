@@ -26,16 +26,19 @@
 (defmethod result-for-testable ((result result) (test test))
   (make-instance 'parent-result :expression test))
 
-(defmethod eval-in-context ((result result) thing)
+(defmethod eval-in-context :around ((result result) thing)
   (let ((start (get-internal-real-time)))
     (unwind-protect
          (call-next-method)
       (setf (duration result) (/ (- (get-internal-real-time) start)
                                  internal-time-units-per-second)))))
 
-(defmethod eval-in-context :before ((context result) thing)
+(defmethod eval-in-context :after ((context result) thing)
   (when *context*
-    (eval-in-context *context* context)))
+    (eval-in-context *context* context))
+  ;; Mark ourselves as passed if we didn't already set the status.
+  (when (eql :unknown (status context))
+    (setf (status context) :passed)))
 
 (defclass comparison-result (result)
   ((result :initarg :result :accessor result)
@@ -67,15 +70,19 @@
       (call-next-method)))
 
 (defmethod eval-in-context ((context parent-result) (result result))
-  (pushnew result (children context)))
+  (pushnew result (children context))
+  (when (eql :failed (status result))
+    (setf (status context) :failed)))
 
 (defmethod eval-in-context :around ((context parent-result) (test test))
   (or (find-child-result test context)
-      (call-next-method)))
-
-(defmethod eval-in-context :before ((context parent-result) (test test))
-  (dolist (dep (dependencies test))
-    (eval-in-context context dep)))
+      (progn
+        ;; We have to run the dependencies here as they need to run before
+        ;; the timing grips in the AROUND method of the RESULT class for
+        ;; EVAL-IN-CONTEXT, which would count them running in a BEFORE.
+        (dolist (dep (dependencies test))
+          (eval-in-context context dep))
+        (call-next-method))))
 
 (defmethod eval-in-context ((context parent-result) (test test))
   (let ((result (result-for-testable context test)))
@@ -86,11 +93,7 @@
            (setf (status result) :skipped))
           (T
            (loop for test in (tests test)
-                 do (eval-in-context result test))
-           (if (loop for child in (children result)
-                     thereis (eql :failed (status child)))
-               (setf (status result) :failed)
-               (setf (status result) :passed))))))
+                 do (eval-in-context result test))))))
 
 (defmethod eval-in-context :after ((context parent-result) (test test))
   (let ((skipped (skipped-children test)))
