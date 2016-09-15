@@ -124,3 +124,29 @@
             (dolist (failure failures)
               (format T "~&~a~%~%" (print-object failure :extensive))))))))
   report)
+
+(defclass interactive (report)
+  ())
+
+(defmacro lformat (format &rest args)
+  `'(lambda (s) (format s ,format ,@args)))
+
+(defmethod eval-in-context :around ((report interactive) (result result))
+  (restart-case
+      (call-next-method)
+    (retry ()
+      :report #.(lformat "Retry testing ~a" (print-object result :oneline))
+      (eval-in-context report result))
+    (abort ()
+      :report #.(lformat "Continue, failing ~a" (print-object result :oneline))
+      (setf (status result) :failed))
+    (continue ()
+      :report #.(lformat "Continue, skipping ~a" (print-object result :oneline))
+      (setf (status result) :skipped))
+    (pass ()
+      :report #.(lformat "Continue, passing ~a" (print-object result :oneline))
+      (setf (status result) :passed))))
+
+(defmethod eval-in-context :after ((report interactive) (result result))
+  (when (eql :failed (status result))
+    (error "Test failed:~%~a" (print-object result :extensive))))
