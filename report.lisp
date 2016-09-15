@@ -24,7 +24,7 @@
                         :expression designator
                         (removef args :report))))
     (dolist (test tests)
-      (eval-in-context report test))
+      (eval-in-context report (result-for-testable test report)))
     (summarize report)))
 
 (defclass report (parent-result)
