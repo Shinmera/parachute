@@ -28,3 +28,11 @@
 (define-test partially-correct
   (true "Happy")
   (is = (get-universal-time) 2962566000))
+
+(define-test shuffle
+  :serial NIL
+  (true 1)
+  (true 2)
+  (true 3)
+  (true 4)
+  (true 5))
