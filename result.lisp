@@ -55,9 +55,16 @@
     (when (eql :unknown (status result))
       (setf (status result) :passed))))
 
-(defclass comparison-result (result)
-  ((result :initarg :result :accessor result)
-   (expected :initarg :expected :accessor expected)
+(defclass value-result (result)
+  ((value :initarg :value :accessor value)))
+
+(defmethod eval-in-context (context (result value-result))
+  (setf (value result) (typecase (value result)
+                         (function (funcall (value result)))
+                         (T (value result)))))
+
+(defclass comparison-result (value-result)
+  ((expected :initarg :expected :accessor expected)
    (comparison :initarg :comparison :accessor comparison))
   (:default-initargs
    :expected '(not null)
@@ -78,14 +85,17 @@
                evaluated to    ~a~%~
                when            ~a~%~
                was expected under ~a."
-          (expression result) (result result) (expected result) (comparison result)))
+          (expression result)
+          (if (slot-boundp result 'value)
+              (value result)
+              (gensym "UNBOUND"))
+          (expected result)
+          (comparison result)))
 
 (defmethod eval-in-context (context (result comparison-result))
-  (setf (result result) (typecase (result result)
-                           (function (funcall (result result)))
-                           (T (result result))))
+  (call-next-method)
   (if (ignore-errors (funcall (comparison result)
-                              (result result)
+                              (value result)
                               (expected result)))
       (setf (status result) :passed)
       (setf (status result) :failed)))

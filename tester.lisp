@@ -11,7 +11,7 @@
     *context*
     (make-instance 'comparison-result
                    :expression ',form
-                   :result (lambda () ,form)
+                   :value (lambda () ,form)
                    :expected '(not null)
                    :comparison 'typep
                    ,@(when description
@@ -22,7 +22,7 @@
     *context*
     (make-instance 'comparison-result
                    :expression ',form
-                   :result (lambda () ,form)
+                   :value (lambda () ,form)
                    :expected 'null
                    :comparison 'typep
                    ,@(when description
@@ -35,7 +35,7 @@
         *context*
         (make-instance 'comparison-result
                        :expression ',form
-                       :result (lambda () ,form)
+                       :value (lambda () ,form)
                        :expected ,exp
                        :comparison ',comp
                        ,@(when description
@@ -46,7 +46,7 @@
     *context*
     (make-instance 'comparison-result
                    :expression ',form
-                   :result (lambda () (nth-value 1 (ignore-errors ,form)))
+                   :value (lambda () (nth-value 1 (ignore-errors ,form)))
                    :expected 'error
                    :comparison 'typep
                    ,@(when description
@@ -57,7 +57,7 @@
     *context*
     (make-instance 'comparison-result
                    :expression ',form
-                   :result (lambda () ,form)
+                   :value (lambda () ,form)
                    :expected ',type
                    :comparison 'typep
                    ,@(when description
