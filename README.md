@@ -9,6 +9,10 @@ In Parachute, things are organised as a bunch of named tests within a package. E
       (true (numberp 2/3))
       (false (numberp :keyword)))
 
+The name of a test can be either a symbol or a string, though both get coerced to a string internally.
+
+    (define-test "A more descriptive name, perhaps")
+
 Tests can have dependencies in order to ensure that you don't get cascade failures. If a test's dependency fails, it is automatically skipped.
 
     (define-test equality
