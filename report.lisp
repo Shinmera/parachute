@@ -22,7 +22,8 @@
   (let* ((tests (resolve-tests designator))
          (report (apply #'make-instance report
                         :expression designator
-                        (removef args :report))))
+                        (removef args :report)))
+         (*context* report))
     (dolist (test tests)
       (eval-in-context report (result-for-testable test report)))
     (summarize report)))
