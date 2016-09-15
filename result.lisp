@@ -8,9 +8,17 @@
 
 (defvar *context* NIL)
 
+(defmethod result-for-testable (whatever (test test))
+  (make-instance 'parent-result :expression test))
+
 (defmethod eval-in-context (context (func function))
   (let ((*context* context))
     (funcall func)))
+
+(defmethod eval-in-context ((null null) test)
+  (let ((context (result-for-testable null test)))
+    (eval-in-context context test)
+    context))
 
 (defclass result ()
   ((expression :initarg :expression :accessor expression)
@@ -23,8 +31,9 @@
    :duration NIL
    :description NIL))
 
-(defmethod result-for-testable ((result result) (test test))
-  (make-instance 'parent-result :expression test))
+(defmethod print-object ((result result) stream)
+  (print-unreadable-object (result stream :type T)
+    (format stream "~s ~a" (status result) (expression result))))
 
 (defmethod eval-in-context :around ((result result) thing)
   (let ((start (get-internal-real-time)))
@@ -34,7 +43,9 @@
                                  internal-time-units-per-second)))))
 
 (defmethod eval-in-context :after ((context result) thing)
-  (when *context*
+  (when (and *context*
+             (not (eql context *context*))
+             (not (eql thing *context*)))
     (eval-in-context *context* context))
   ;; Mark ourselves as passed if we didn't already set the status.
   (when (eql :unknown (status context))
@@ -45,9 +56,16 @@
    (expected :initarg :expected :accessor expected)
    (comparison :initarg :comparison :accessor comparison))
   (:default-initargs
-   :result (error "RESULT required.")
    :expected '(not null)
    :comparison 'typep))
+
+(defmethod print-object ((result comparison-result) stream)
+  (print-unreadable-object (result stream :type T)
+    (format stream "~s (~a ~s ~s)"
+            (status result)
+            (comparison result)
+            (expression result)
+            (expected result))))
 
 (defmethod eval-in-context ((context comparison-result) thing)
   (setf (result context) (call-next-method))

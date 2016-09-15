@@ -8,7 +8,7 @@
 
 (defmacro true (form &optional description &rest format-args)
   `(eval-in-context
-    (make-instance 'comprison-result
+    (make-instance 'comparison-result
                    :expression ',form
                    :expected '(not null)
                    :comparison 'typep
@@ -18,7 +18,7 @@
 
 (defmacro false (form &optional description &rest format-args)
   `(eval-in-context
-    (make-instance 'comprison-result
+    (make-instance 'comparison-result
                    :expression ',form
                    :expected 'null
                    :comparison 'typep
@@ -30,7 +30,7 @@
   (let ((exp (gensym "EXP")))
     `(let ((,exp ,expected))
        (eval-in-context
-        (make-instance 'comprison-result
+        (make-instance 'comparison-result
                        :expression ',form
                        :expected ,exp
                        :comparison ',comp
@@ -40,7 +40,7 @@
 
 (defmacro fail (form &optional description &rest format-args)
   `(eval-in-context
-    (make-instance 'comprison-result
+    (make-instance 'comparison-result
                    :expression ',form
                    :expected 'error
                    :comparison 'typep
@@ -50,7 +50,7 @@
 
 (defmacro of-type (type form &optional description &rest format-args)
   `(eval-in-context
-    (make-instance 'comprison-result
+    (make-instance 'comparison-result
                    :expression ',form
                    :expected ',type
                    :comparison 'typep
