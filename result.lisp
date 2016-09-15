@@ -108,8 +108,18 @@
 (defmethod find-child-result (test (result parent-result))
   (find test (children result) :key #'expression :test #'eq))
 
+(defmethod results-with-status (status (result parent-result))
+  (loop for result in (children result)
+        when (eql status (status result))
+        collect result))
+
 (defclass test-result (parent-result)
   ())
+
+(defmethod print-object ((result test-result) (type (eql :oneline)))
+  (format NIL "~a::~a"
+          (package-name (home (expression result)))
+          (name (expression result))))
 
 (defmethod eval-in-context :around (context (result test-result))
   ;; We have to run the dependencies here as they need to run before
