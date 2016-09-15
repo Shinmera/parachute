@@ -74,7 +74,10 @@
           (comparison result) (expression result) (expected result)))
 
 (defmethod print-object ((result comparison-result) (type (eql :extensive)))
-  (format NIL "The test form~%  ~a~%evaluated to~%  ~a~%when~%  ~a~%was expected under ~a."
+  (format NIL "The test form   ~a~%~
+               evaluated to    ~a~%~
+               when            ~a~%~
+               was expected under ~a."
           (expression result) (result result) (expected result) (comparison result)))
 
 (defmethod eval-in-context (context (result comparison-result))

@@ -28,9 +28,8 @@
   ())
 
 (defmethod tests-with-status (status (report report))
-  (loop for result in (children report)
-        when (eql status (status result))
-        collect (expression result)))
+  (delete-if-not (lambda (a) (typep a 'test))
+                 (mapcan #'expression (results-with-status status report))))
 
 (defclass plain (report)
   ())
@@ -68,24 +67,27 @@
 (defmethod report-on ((result result) (report plain))
   (format T (expression result)))
 
-(defmethod report-on ((result test-result) (report plain))
-  (format T "~a::~a"
-          (package-name (home (expression result)))
-          (name (expression result))))
-
 (defmethod report-on ((result comparison-result) (report plain))
   (write-string (print-object result :oneline)))
 
 (defmethod summarize ((report plain))
-  (format T "~&~%~
+  (let ((failures (results-with-status :failed report)))
+    (format T "~&~%~
              ;; Summary:~%~
              Passed:  ~4d~%~
              Failed:  ~4d~%~
              Skipped: ~4d~%"
-          (length (tests-with-status :passed report))
-          (length (tests-with-status :failed report))
-          (length (tests-with-status :skipped report)))
-  (dolist (result (children report))
-    (when (eql :failed (status result))
-      (write-line (print-object result :extensive))))
+            (length (results-with-status :passed report))
+            (length failures)
+            (length (results-with-status :skipped report)))
+    (when failures
+      (format T "~&~%;; Failures:~%")
+      (dolist (failure failures)
+        (when (typep (expression failure) 'test)
+          (let ((failures (results-with-status :failed failure)))
+            (format T "~& ~4d/~4d tests failed in ~a:~%"
+                    (length failures) (length (children failure))
+                    (print-object failure :oneline))
+            (dolist (failure failures)
+              (format T "~&~a~%~%" (print-object failure :extensive))))))))
   report)
