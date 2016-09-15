@@ -132,18 +132,15 @@
 
 (defmethod eval-in-context (context (result test-result))
   (let* ((test (expression result))
-         (result (result-for-testable test context)))
+         (result (result-for-testable test context))
+         (skipped (skipped-children test)))
     (cond ((loop for dep in (dependencies test)
                  for result = (find-child-result dep context)
                  thereis (eql :failed (status result)))
            (setf (status result) :skipped))
           (T
            (loop for test in (tests test)
-                 do (funcall test))))))
-
-(defmethod eval-in-context :after (context (result test-result))
-  (let* ((test (expression result))
-         (skipped (skipped-children test)))
+                 do (funcall test))))
     (loop for child in (children test)
           for subresult = (result-for-testable child context)
           do (cond ((find child skipped)
