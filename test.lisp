@@ -68,6 +68,16 @@
         do (warn "The reference to the child ~a of ~a cannot be found within ~a."
                  name (name test) home)))
 
+(defmethod children :around ((test test))
+  (if (serial test)
+      (call-next-method)
+      (shuffle (call-next-method))))
+
+(defmethod tests :around ((test test))
+  (if (serial test)
+      (call-next-method)
+      (shuffle (call-next-method))))
+
 (defun test-index (name package-ish)
   (let ((package
           (etypecase name
