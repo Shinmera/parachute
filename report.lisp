@@ -65,9 +65,6 @@
   (force-output))
 
 (defmethod report-on ((result result) (report plain))
-  (format T (expression result)))
-
-(defmethod report-on ((result comparison-result) (report plain))
   (write-string (print-object result :oneline)))
 
 (defmethod summarize ((report plain))
