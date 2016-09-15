@@ -22,7 +22,8 @@
 
 (define-test failing
   (true (< 8 5))
-  (fail 'happy))
+  (fail 'happy)
+  (true (= 5 (read-from-string "OH-SHIT"))))
 
 (define-test partially-correct
   (true "Happy")
