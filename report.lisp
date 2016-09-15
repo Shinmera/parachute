@@ -30,9 +30,17 @@
 (defclass report (parent-result)
   ())
 
+(defmethod print-object ((report report) stream)
+  (print-unreadable-object (report stream :type T)
+    (format stream "~a results"
+            (length (children report)))))
+
 (defmethod tests-with-status (status (report report))
   (delete-if-not (lambda (a) (typep a 'test))
                  (mapcan #'expression (results-with-status status report))))
+
+(defmethod summarize ((report report))
+  report)
 
 (defclass quiet (report)
   ())
@@ -44,9 +52,6 @@
       (error (err)
         (declare (ignore err))
         (setf (status result) :failed)))))
-
-(defmethod summarize ((report quiet))
-  report)
 
 (defclass plain (report)
   ())
