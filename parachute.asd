@@ -17,8 +17,9 @@
                (:file "toolkit")
                (:file "test")
                (:file "result")
-               (:file "report")
                (:file "tester")
+               (:file "report")
+               (:file "example")
                (:file "documentation"))
   :depends-on (:documentation-utils
                :form-fiddle))
