@@ -21,4 +21,9 @@
   (fail (error "An expected failure.")))
 
 (define-test failing
-  (is < 8 5))
+  (true (< 8 5))
+  (fail 'happy))
+
+(define-test partially-correct
+  (true "Happy")
+  (is = (get-universal-time) 2962566000))
