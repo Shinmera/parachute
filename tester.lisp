@@ -7,48 +7,53 @@
 (in-package #:org.shirakumo.parachute)
 
 (defmacro true (form &optional description &rest format-args)
-  `(run (make-instance 'comprison-result
-                       :expression ',form
-                       :expected '(not null)
-                       :comparison 'typep
-                       ,@(when description
-                           `(:description (format NIL ,description ,@format-args))))
-        (lambda () ,form)))
+  `(eval-in-context
+    (make-instance 'comprison-result
+                   :expression ',form
+                   :expected '(not null)
+                   :comparison 'typep
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))
+    (lambda () ,form)))
 
 (defmacro false (form &optional description &rest format-args)
-  `(run (make-instance 'comprison-result
-                       :expression ',form
-                       :expected 'null
-                       :comparison 'typep
-                       ,@(when description
-                           `(:description (format NIL ,description ,@format-args))))
-        (lambda () ,form)))
+  `(eval-in-context
+    (make-instance 'comprison-result
+                   :expression ',form
+                   :expected 'null
+                   :comparison 'typep
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))
+    (lambda () ,form)))
 
 (defmacro is (comp expected form &optional description &rest format-args)
   (let ((exp (gensym "EXP")))
     `(let ((,exp ,expected))
-       (run (make-instance 'comprison-result
-                           :expression ',form
-                           :expected ,exp
-                           :comparison ',comp
-                           ,@(when description
-                               `(:description (format NIL ,description ,@format-args))))
-            (lambda () ,form)))))
+       (eval-in-context
+        (make-instance 'comprison-result
+                       :expression ',form
+                       :expected ,exp
+                       :comparison ',comp
+                       ,@(when description
+                           `(:description (format NIL ,description ,@format-args))))
+        (lambda () ,form)))))
 
 (defmacro fail (form &optional description &rest format-args)
-  `(run (make-instance 'comprison-result
-                       :expression ',form
-                       :expected 'error
-                       :comparison 'typep
-                       ,@(when description
-                           `(:description (format NIL ,description ,@format-args))))
-        (lambda () (nth-value 1 (ignore-errors ,form)))))
+  `(eval-in-context
+    (make-instance 'comprison-result
+                   :expression ',form
+                   :expected 'error
+                   :comparison 'typep
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))
+    (lambda () (nth-value 1 (ignore-errors ,form)))))
 
 (defmacro of-type (type form &optional description &rest format-args)
-  `(run (make-instance 'comprison-result
-                       :expression ',form
-                       :expected ',type
-                       :comparison 'typep
-                       ,@(when description
-                           `(:description (format NIL ,description ,@format-args))))
-        (lambda () ,form)))
+  `(eval-in-context
+    (make-instance 'comprison-result
+                   :expression ',form
+                   :expected ',type
+                   :comparison 'typep
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))
+    (lambda () ,form)))

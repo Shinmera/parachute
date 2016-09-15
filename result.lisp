@@ -6,77 +6,98 @@
 
 (in-package #:org.shirakumo.parachute)
 
-(defclass test-result ()
+(defvar *context* NIL)
+
+(defmethod eval-in-context (context (func function))
+  (let ((*context* context))
+    (funcall func)))
+
+(defclass result ()
   ((expression :initarg :expression :accessor expression)
    (status :initarg :status :accessor status)
    (duration :initarg :duration :accessor duration)
-   (description :initarg :description :accessor description)))
+   (description :initarg :description :accessor description))
+  (:default-initargs
+   :expression (error "EXPRESSION required.")
+   :status :unknown
+   :duration NIL
+   :description NIL))
 
-(defmethod passed-p ((result test-result))
-  (eql :passed (status result)))
+(defmethod result-for-testable ((result result) (test test))
+  (make-instance 'parent-result :expression test))
 
-(defmethod failed-p ((result test-result))
-  (eql :failed (status result)))
-
-(defmethod skipped-p ((result test-result))
-  (eql :skipped (status result)))
-
-(defmethod run ((result test-result) (func function))
+(defmethod eval-in-context ((result result) thing)
   (let ((start (get-internal-real-time)))
     (unwind-protect
-         (funcall func)
-      (setf (duration result)
-            (/ (- (get-internal-real-time) start)
-               internal-time-units-per-second))))
-  result)
+         (call-next-method)
+      (setf (duration result) (/ (- (get-internal-real-time) start)
+                                 internal-time-units-per-second)))))
 
-(defmethod present-object ((result test-result) (type (eql :oneline)) out)
-  (typecase (expression result)
-    (test (write-string (name (expression result)) out))
-    (T (write (expression result) :stream out :case :downcase :escape NIL :readably NIL))))
+(defmethod eval-in-context :before ((context result) thing)
+  (when *context*
+    (eval-in-context *context* context)))
 
-(defmethod present-object ((result test-result) (type (eql :extensive)) out)
-  (format out "Running ~a ~(~a~)~@[ in ~,3fs~]."
-          (present result :oneline)
-          (status result)
-          (duration result))
-  (when (eql :failed (status result))
-    (when (description result)
-      (format out "~&~a"
-              (description result)))))
-
-(defclass comparison-result (test-result)
-  ((result :initarg :result :accessor resulr)
+(defclass comparison-result (result)
+  ((result :initarg :result :accessor result)
    (expected :initarg :expected :accessor expected)
-   (comparison :initarg :comparison :accessor comparison)))
+   (comparison :initarg :comparison :accessor comparison))
+  (:default-initargs
+   :result (error "RESULT required.")
+   :expected '(not null)
+   :comparison 'typep))
 
-(defmethod run ((result comparison-result) thing)
-  (setf (result result) (call-next-method)))
+(defmethod eval-in-context ((context comparison-result) thing)
+  (setf (result context) (call-next-method))
+  (if (ignore-errors (funcall (comparison context)
+                              (result context)
+                              (expected context)))
+      (setf (status context) :passed)
+      (setf (status context) :failed)))
 
-(defmethod run :after ((result comparison-result) thing)
-  (setf (status result) (if (ignore-errors
-                             (funcall (comparison result) (result result) (expected result)))
-                            :passed :failed)))
+(defclass parent-result (result)
+  ((children :initarg :children :accessor children))
+  (:default-initargs
+   :children NIL))
 
-(defmethod present-object :after ((result comparison-result) (type (eql :extensive)) out)
-  (fresh-line out)
-  (format out "The expression evaluated to~%  ~a
-               with the expected result being~% ~a
-               under the ~a comparator."
-          (result result)
-          (expected result)
-          (comparison result)))
+(defmethod find-child-result (test (result parent-result))
+  (find test (children result) :key #'expression :test #'eq))
 
-(defclass subtest-result (test-result)
-  ((children :initarg :children :accessor children)))
+(defmethod result-for-testable ((result parent-result) (test test))
+  (or (find-child-result test result)
+      (call-next-method)))
 
-(defmethod present-object :after ((result subtest-result) (type (eql :oneline)) out)
-  (write (length (children result)) :stream out))
+(defmethod eval-in-context ((context parent-result) (result result))
+  (pushnew result (children context)))
 
-(defmethod present-object :after ((result subtest-result) (type (eql :extensive)) out)
-  (let ((failed (loop for c in (children result) collect (failed-p c))))
-    (format out "~&The result has ~d children, of which ~d failed~:[:~;.~]"
-            (length (children result)) (length failed) (= 0 (length failed)))
-    (dolist (child failed)
-      (terpri out)
-      (present-object result type out))))
+(defmethod eval-in-context :around ((context parent-result) (test test))
+  (or (find-child-result test context)
+      (call-next-method)))
+
+(defmethod eval-in-context :before ((context parent-result) (test test))
+  (dolist (dep (dependencies test))
+    (eval-in-context context dep)))
+
+(defmethod eval-in-context ((context parent-result) (test test))
+  (let ((result (result-for-testable context test)))
+    (eval-in-context context result)
+    (cond ((loop for dep in (dependencies test)
+                 for result = (find-child-result context dep)
+                 thereis (eql :failed (status result)))
+           (setf (status result) :skipped))
+          (T
+           (loop for test in (tests test)
+                 do (eval-in-context result test))
+           (if (loop for child in (children result)
+                     thereis (eql :failed (status child)))
+               (setf (status result) :failed)
+               (setf (status result) :passed))))))
+
+(defmethod eval-in-context :after ((context parent-result) (test test))
+  (let ((skipped (skipped-children test)))
+    (loop for child in (children test)
+          do (cond ((find child skipped)
+                    (let ((result (result-for-testable context child)))
+                      (setf (status result) :skipped)
+                      (eval-in-context context result)))
+                   (T
+                    (eval-in-context context test))))))
