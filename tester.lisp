@@ -26,7 +26,7 @@
                        `(:description (format NIL ,description ,@format-args))))
     (lambda () ,form)))
 
-(defmacro is (comp expected form &optional description &rest format-args)
+(defmacro is (comp form expected &optional description &rest format-args)
   (let ((exp (gensym "EXP")))
     `(let ((,exp ,expected))
        (eval-in-context
