@@ -16,9 +16,6 @@
 (defmethod result-for-testable ((test test) context)
   (make-instance 'test-result :expression test))
 
-(defmethod eval-in-context (context (test test))
-  (eval-in-context context (result-for-testable test context)))
-
 (defclass result ()
   ((expression :initarg :expression :accessor expression)
    (status :initarg :status :accessor status)
@@ -149,8 +146,7 @@
                  thereis (eql :failed (status result)))
            (setf (status result) :skipped))
           (T
-           (loop for test in (tests test)
-                 do (funcall test))))
+           (eval-in-context context test)))
     (loop for child in (children test)
           for subresult = (result-for-testable child context)
           do (cond ((find child skipped)

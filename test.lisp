@@ -148,3 +148,7 @@
     (when index
       (loop for v being the hash-values of index
             collect v))))
+
+(defmethod eval-in-context (context (test test))
+  (loop for test in (tests test)
+        do (funcall test)))
