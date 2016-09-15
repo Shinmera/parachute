@@ -58,8 +58,19 @@
 
 (defmethod eval-in-context :around ((report plain) (result result))
   (when (eql :unknown (status result))
-    (call-next-method)
+    (handler-case
+        (call-next-method)
+      (error (err)
+        (warn "Unhandled error when evaluating ~a: ~a" result err)
+        (setf (status result) :failed)))
     (report-on result report)))
+
+(defmethod eval-in-context ((report plain) (result value-result))
+  (handler-case
+      (call-next-method)
+    (error (err)
+      (setf (value result) err)
+      (setf (status result) :failed))))
 
 (defmethod eval-in-context ((report plain) (result result))
   (let ((*level* (1+ *level*)))
