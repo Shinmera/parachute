@@ -18,7 +18,7 @@
                (:file "test")
                (:file "result")
                (:file "report")
-               ;(:file "tester")
+               (:file "tester")
                (:file "documentation"))
   :depends-on (:documentation-utils
                :form-fiddle))
