@@ -6,20 +6,21 @@
 
 (in-package #:org.shirakumo.parachute)
 
-(defun resolve-test (name)
-  (etypecase name
-    (list (mapcan #'resolve-test name))
-    (package (package-tests name))
-    (symbol (cond ((find-test name)
-                   (list (find-test name)))
-                  ((find-package name)
-                   (package-tests name))
-                  (T
-                   (error "No test or package found for ~s." name))))))
+(defun resolve-tests (designator)
+  (etypecase designator
+    (list (mapcan #'resolve-tests designator))
+    (package (package-tests designator))
+    ((or symbol string)
+     (cond ((find-test designator)
+            (list (find-test designator)))
+           ((find-package designator)
+            (package-tests designator))
+           (T
+            (error "No test or package found for ~s." designator))))))
 
-(defun test (name &rest args &key (report 'plain) &allow-other-keys)
-  (let* ((tests (resolve-test name))
-         (report (apply #'make-instance report :expression name args)))
+(defun test (designator &rest args &key (report 'plain) &allow-other-keys)
+  (let* ((tests (resolve-tests designator))
+         (report (apply #'make-instance report :expression designator args)))
     (dolist (test tests)
       (eval-in-context report test))
     (summarize report)))
