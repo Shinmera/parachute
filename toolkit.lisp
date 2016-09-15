@@ -12,3 +12,9 @@
     (dotimes (i len seq)
       (let ((r (+ i (random (- len i)))))
         (rotatef (elt seq i) (elt seq r))))))
+
+(defun removef (place &rest indicators)
+  (loop for (k v) on place by #'cddr
+        for found = (find k indicators)
+        unless found collect k
+        unless found collect v))

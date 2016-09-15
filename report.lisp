@@ -20,7 +20,9 @@
 
 (defun test (designator &rest args &key (report 'plain) &allow-other-keys)
   (let* ((tests (resolve-tests designator))
-         (report (apply #'make-instance report :expression designator args)))
+         (report (apply #'make-instance report
+                        :expression designator
+                        (removef args :report))))
     (dolist (test tests)
       (eval-in-context report test))
     (summarize report)))
