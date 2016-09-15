@@ -32,6 +32,20 @@
   (delete-if-not (lambda (a) (typep a 'test))
                  (mapcan #'expression (results-with-status status report))))
 
+(defclass quiet (report)
+  ())
+
+(defmethod eval-in-context :around ((report quiet) (result result))
+  (when (eql :unknown (status result))
+    (handler-case
+        (call-next-method)
+      (error (err)
+        (declare (ignore err))
+        (setf (status result) :failed)))))
+
+(defmethod summarize ((report quiet))
+  report)
+
 (defclass plain (report)
   ())
 
