@@ -138,3 +138,11 @@
            ,@(loop for (def subname . body) in defs
                    collect `(,def (,name ,subname) ,@body))
            ',name)))))
+
+(defun package-tests (package)
+  (let* ((package (or (find-package package)
+                      (error "Couldn't find a package called ~s." package)))
+         (index (gethash package *test-indexes*)))
+    (when index
+      (loop for v being the hash-values of index
+            collect v))))
