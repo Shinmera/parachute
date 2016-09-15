@@ -51,6 +51,10 @@
                parent name home))
       (setf (parent test) parent))))
 
+(defmethod print-object ((test test) stream)
+  (print-unreadable-object (test stream :type T)
+    (format stream "~a::~a" (package-name (home test)) (name test))))
+
 (defmethod dependencies ((test test))
   (loop for dep in (referenced-dependencies test)
         for (home name) = (if (listp dep) dep (list (home test) dep))
