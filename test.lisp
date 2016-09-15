@@ -150,5 +150,6 @@
             collect v))))
 
 (defmethod eval-in-context (context (test test))
-  (loop for test in (tests test)
-        do (funcall test)))
+  (with-fixture (fixtures test)
+    (loop for test in (tests test)
+          do (funcall test))))
