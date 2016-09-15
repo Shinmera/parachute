@@ -121,4 +121,4 @@
                       (setf (status result) :skipped)
                       (eval-in-context context result)))
                    (T
-                    (eval-in-context context test))))))
+                    (eval-in-context context child))))))
