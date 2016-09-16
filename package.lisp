@@ -7,4 +7,75 @@
 (in-package #:cl-user)
 (defpackage #:parachute
   (:nicknames #:org.shirakumo.parachute)
-  (:use #:cl))
+  (:use #:cl)
+  ;; fixture.lisp
+  (:export
+   #:*fixture-captures*
+   #:*fixture-restores*
+   #:define-fixture-capture
+   #:define-fixture-restore
+   #:package-fixtures
+   #:capture-fixtures
+   #:restore-fixtures
+   #:call-with-fixtures
+   #:with-fixtures)
+  ;; report.lisp
+  (:export
+   #:test
+   #:report
+   #:tests-with-status
+   #:summarize
+   #:quiet
+   #:plain
+   #:report-on
+   #:interactive)
+  ;; result.lisp
+  (:export
+   #:*prent*
+   #:*context*
+   #:eval-in-context
+   #:result-for-testable
+   #:result
+   #:expression
+   #:status
+   #:duration
+   #:description
+   #:value-result
+   #:value
+   #:comparison-result
+   #:expected
+   #:comparison
+   #:parent-result
+   #:children
+   #:find-child-result
+   #:results-with-status
+   #:test-result)
+  ;; test.lisp
+  (:export
+   #:test
+   #:name
+   #:home
+   #:parent
+   #:children
+   #:referenced-dependencies
+   #:dependencies
+   #:fixtures
+   #:time-limit
+   #:referenced-skips
+   #:skipped-children
+   #:tests
+   #:serial
+   #:find-test
+   #:remove-test
+   #:define-test
+   #:package-tests)
+  ;; tester.lisp
+  (:export
+   #:true
+   #:false
+   #:is
+   #:fail
+   #:of-type)
+  ;; toolkit.lisp
+  (:export
+   #:with-shuffling))
