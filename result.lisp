@@ -141,7 +141,7 @@
   ;; the timing grips in the AROUND method of the RESULT class for
   ;; EVAL-IN-CONTEXT, which would count them running in a BEFORE.
   (dolist (dep (dependencies (expression result)))
-    (eval-in-context context dep))
+    (eval-in-context context (result-for-testable dep context)))
   (call-next-method)
   (let ((test (expression result)))
     (when (and (time-limit test)
