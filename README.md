@@ -64,11 +64,11 @@ In case your code will cause changes to the global environment, you probably wil
 
 You can also tell it to hold all the symbols accessible to a certain package in place by giving it a package designator as a keyword, gensym, or string. If you have a user-defined binding to a symbol you can also make the fixture system aware of it.
 
-    (define-fixture-capture-hook my-binding (symbol)
+    (define-fixture-capture my-binding (symbol)
       (when (my-binding-bound-p symbol)
         (values (my-binding-value symbol) T)))
 
-    (define-fixture-restore-hook my-binding (symbol value)
+    (define-fixture-restore my-binding (symbol value)
       (setf (my-binding-value symbol) value))
 
 Finally, Parachute also allows you to enforce timing constraints on tests to make sure that they complete within a specified limit.
