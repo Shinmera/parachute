@@ -507,6 +507,16 @@ See *TEST-INDEXES*"))
 
 ;; tester.lisp
 (docs:define-docs
+  (function geq
+    "Returns true if the value is of the expected general boolean.
+
+More specifically, the following table is followed:
+VALUE EXPECTED RESULT
+  T      T        T
+ NIL     T       NIL
+ NIL    NIL       T
+  T     NIL      NIL")  
+    
   (function true
     "A tester that succeeds if the form returns a non-NIL value.")
 

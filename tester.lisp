@@ -6,14 +6,19 @@
 
 (in-package #:org.shirakumo.parachute)
 
+(defun geq (value expected)
+  (if expected
+      value
+      (not value)))
+
 (defmacro true (form &optional description &rest format-args)
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
                    :expression ',form
                    :value (lambda () ,form)
-                   :expected '(not null)
-                   :comparison 'typep
+                   :expected 'T
+                   :comparison 'geq
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
 
@@ -23,8 +28,8 @@
     (make-instance 'comparison-result
                    :expression ',form
                    :value (lambda () ,form)
-                   :expected 'null
-                   :comparison 'typep
+                   :expected 'NIL
+                   :comparison 'geq
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
 
