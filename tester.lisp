@@ -41,13 +41,13 @@
                        ,@(when description
                            `(:description (format NIL ,description ,@format-args))))))))
 
-(defmacro fail (form &optional description &rest format-args)
+(defmacro fail (form &optional (type 'error) description &rest format-args)
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
                    :expression ',form
                    :value (lambda () (nth-value 1 (ignore-errors ,form)))
-                   :expected 'error
+                   :expected ',type
                    :comparison 'typep
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
