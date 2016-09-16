@@ -113,7 +113,7 @@
              Skipped: ~4d~%"
             (length (filter-test-results (results-with-status :passed report)))
             (length (filter-test-results failures))
-            (length (filter-test-results (results-with-status :skipped report))))
+            (length (results-with-status :skipped report)))
     (when failures
       (format T "~&~%;; Failures:~%")
       (dolist (failure failures)
