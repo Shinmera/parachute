@@ -107,6 +107,14 @@ See RESOLVE-TESTS
 See EVAL-IN-CONTEXT
 See SUMMARIZE")
 
+  (function summarize
+    "Should cause the report to produce some kind of summary.
+
+How this summary is presented and what is contained in it is up to
+the report itself.
+
+See REPORT.")
+
   (type report
     "Base class for all report objects.
 
