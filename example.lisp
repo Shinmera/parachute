@@ -40,3 +40,8 @@
 (define-test timeout
   :time-limit 0.5
   (sleep 0.75))
+
+(define-test bad-dependency
+  :depends-on (failing)
+  (is = 5 5))
+
