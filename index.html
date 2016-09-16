@@ -121,15 +121,21 @@
 <pre><code>(<a href="#PARACHUTE:TEST">test</a> 'arithmetic)
 </code></pre>
 
+<p><img src="https://filebox.tymoon.eu/file/TVRFMU1RPT0=" alt="plain-test-result"/></p>
+
 <p>There are two more report types included in the standard distribution, namely <code><a href="#PARACHUTE:QUIET">quiet</a></code> and <code><a href="#PARACHUTE:INTERACTIVE">interactive</a></code>. The former should not produce any output or user-interaction whatseover.</p>
 
 <pre><code>(<a href="#PARACHUTE:TEST">test</a> 'arithmethic :report 'quiet)
 </code></pre>
 
+<p><img src="https://filebox.tymoon.eu/file/TVRFMU1nPT0=" alt="quiet-test-result"/></p>
+
 <p>The latter on the other hand will present you the debugger with a handful of useful restarts whenever a test fails. This allows you to iteratively and dynamically develop and refine tests.</p>
 
 <pre><code>(<a href="#PARACHUTE:TEST">test</a> 'arithmetic :report 'interactive)
 </code></pre>
+
+<p><img src="https://filebox.tymoon.eu/file/TVRFMU13PT0=" alt="interactive-test-result"/></p>
 
 <p>And that should cover most of it. Parachute does not have any fancy ASDF integration, however I don't believe any is needed anyway. Simply modifying your main system and test system as follows should be sufficient.</p>
 
