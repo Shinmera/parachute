@@ -81,13 +81,14 @@
   (format NIL "The test form   ~a~%~
                evaluated to    ~a~%~
                when            ~a~%~
-               was expected under ~a."
+               was expected under ~a.~@[~%~a~]"
           (expression result)
           (if (slot-boundp result 'value)
               (value result)
               (gensym "UNBOUND"))
           (expected result)
-          (comparison result)))
+          (comparison result)
+          (description result)))
 
 (defmethod eval-in-context (context (result comparison-result))
   (call-next-method)
@@ -129,13 +130,27 @@
           (package-name (home (expression result)))
           (name (expression result))))
 
+(defmethod print-object ((result test-result) (type (eql :extensive)))
+  (format NIL "~4d/~4d tests failed in ~a~@[~%~a~]"
+          (length (results-with-status :failed result)) (length (children result))
+          (print-object result :oneline)
+          (description result)))
+
 (defmethod eval-in-context :around (context (result test-result))
   ;; We have to run the dependencies here as they need to run before
   ;; the timing grips in the AROUND method of the RESULT class for
   ;; EVAL-IN-CONTEXT, which would count them running in a BEFORE.
   (dolist (dep (dependencies (expression result)))
     (eval-in-context context dep))
-  (call-next-method))
+  (call-next-method)
+  (let ((test (expression result)))
+    (when (and (time-limit test)
+               (< (time-limit test)
+                  (duration result)))
+      (setf (description result)
+            (format NIL "The limit of ~fs was exceeded as the test took ~fs to run."
+                    (time-limit test) (duration result)))
+      (setf (status result) :failed))))
 
 (defmethod eval-in-context (context (result test-result))
   (let* ((test (expression result))

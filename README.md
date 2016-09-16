@@ -103,8 +103,6 @@ And that should cover most of it. Parachute does not have any fancy ASDF integra
 This should allow you to run the tests via ASDF like so: `(asdf:test-system :main-system)`.
 
 ## Extending Parachute
-FIXME: time limits
-FIXME: documentation parts in test result presentation
 FIXME: confusing output on comparison-results
 FIXME: some results seem to be off, investigate
 FIXME: finish this readme

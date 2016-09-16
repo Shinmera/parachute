@@ -36,3 +36,7 @@
   (true 3)
   (true 4)
   (true 5))
+
+(define-test timeout
+  :time-limit 0.5
+  (sleep 0.75))

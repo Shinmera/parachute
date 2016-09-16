@@ -118,12 +118,9 @@
       (format T "~&~%;; Failures:~%")
       (dolist (failure failures)
         (when (typep failure 'test-result)
-          (let ((failures (results-with-status :failed failure)))
-            (format T "~& ~4d/~4d tests failed in ~a:~%"
-                    (length failures) (length (children failure))
-                    (print-object failure :oneline))
-            (dolist (failure failures)
-              (format T "~&~a~%~%" (print-object failure :extensive))))))))
+          (format T "~&~a~%" (print-object failure :extensive))
+          (dolist (failure (results-with-status :failed failure))
+            (format T "~&~a~%~%" (print-object failure :extensive)))))))
   report)
 
 (defclass interactive (report)
