@@ -11,6 +11,13 @@
       value
       (not value)))
 
+(defmacro capture-error (form &optional (condition 'error))
+  (let ((err (gensym "ERR")))
+    `(handler-case
+         (prog1 NIL ,form)
+       (,condition (,err)
+         ,err))))
+
 (defmacro true (form &optional description &rest format-args)
   `(eval-in-context
     *context*
@@ -50,8 +57,8 @@
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
-                   :expression ',form
-                   :value (lambda () (nth-value 1 (ignore-errors ,form)))
+                   :expression '(capture-error ,form)
+                   :value (lambda () (capture-error ,form))
                    :expected ',type
                    :comparison 'typep
                    ,@(when description

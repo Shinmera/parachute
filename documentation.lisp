@@ -515,7 +515,12 @@ VALUE EXPECTED RESULT
   T      T        T
  NIL     T       NIL
  NIL    NIL       T
-  T     NIL      NIL")  
+  T     NIL      NIL")
+
+  (function capture-error
+    "Returns the condition signalled by the form, or NIL if none was signalled.
+
+By default only subconditions of ERROR are caught.")
     
   (function true
     "A tester that succeeds if the form returns a non-NIL value.")
