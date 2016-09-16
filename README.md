@@ -104,5 +104,4 @@ This should allow you to run the tests via ASDF like so: `(asdf:test-system :mai
 
 ## Extending Parachute
 FIXME: confusing output on comparison-results
-FIXME: some results seem to be off, investigate
 FIXME: finish this readme
