@@ -6,6 +6,72 @@
 
 (in-package #:org.shirakumo.parachute)
 
+;; fixture.lisp
+(docs:define-docs
+  (variable *fixture-captures*
+    "A map of names to fixture capture functions.
+
+See DEFINE-FIXTURE-CAPTURE")
+
+  (variable *fixture-restores*
+    "A map of names to fixture restore functions.
+
+See DEFINE-FIXTURE-RESTORE")
+
+  (function define-fixture-capture
+    "Defines a capture function to fix a symbol binding.
+
+A capture function should take a symbol and return a value to
+capture for it, and T as the secondary value if anything should
+be captured at all for the kind of binding the function handles.
+
+See *FIXTURE-CAPTURES*")
+
+  (function define-fixture-restore
+    "Defines a restore function to fix a symbol binding.
+
+A restoration function should take a symbol and a value and
+make sure to restore the binding it handles to the given value.
+
+See *FIXTURE-RESTORES*")
+
+  (function package-fixtures
+    "Returns a list of fixtures for all symbols accessible in the given package.")
+
+  (function capture-fixtures
+    "Returns a list of fixtures for the given kind.
+
+If the given name is a symbol that is not a keyword and has a
+package associated with it, then a list of a single fixture that
+captures every appropriate binding for the symbol is returned.
+Otherwise the name is interpreted as a package for which a list
+of fixtures for every symbol accessible in the package is returned.
+
+See RESTORE-FIXTURES
+See PACKAGE-FIXTURES
+See DEFINE-FIXTURE-CAPTURE")
+
+  (function restore-fixtures
+    "Restores the bindings stored in the fixtures to their saved values.
+
+See CAPTURE-FIXTURES
+See DEFINE-FIXTURE-RESTORE")
+
+  (function call-with-fixtures
+    "Calls the function with the given list of fixtures.
+
+This ensures that the values are stored before the function is
+called and restored once the function is completed.
+
+See CAPTURE-FIXTURES
+See RESTORE-FIXTURES
+See WITH-FIXTURE")
+
+  (function with-fixtures
+    "Shorthand macro to evaluate the body with the fixtures saved away.
+
+See CALL-WITH-FIXTURES"))
+
 ;; report.lisp
 (docs:define-docs
   (function resolve-tests
@@ -470,4 +536,7 @@ lambdas, and then funcalling each in the shuffled order.
 See SHUFFLE")
 
   (function removef
-    "Returns a new plist with the key/value pairs of the indicators removed."))
+    "Returns a new plist with the key/value pairs of the indicators removed.")
+
+  (function locked-package-p
+    "Returns T if the given package is (assumed to be) locked and whose function bindings should thus not be changed."))
