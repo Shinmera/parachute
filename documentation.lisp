@@ -142,7 +142,15 @@ See REPORT")
     "A plain-text report that prints test results as they go by as well as a summary of the failures at the end.
 
 See REPORT
+See OUTPUT
 See REPORT-ON")
+
+  (function output
+    "The stream that the PLAIN report outputs to during REPORT-ON and SUMMARIZE.
+
+See PLAIN
+See REPORT-ON
+See SUMMARIZE")
 
   (function report-on
     "Causes the result to be printed to standard output under the formatting of the report.

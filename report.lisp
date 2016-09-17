@@ -55,7 +55,8 @@
         (setf (status result) :failed)))))
 
 (defclass plain (report)
-  ())
+  ((output :initarg :output :initarg :stream :accessor output))
+  (:default-initargs :stream T))
 
 (defvar *level* 0)
 
@@ -85,7 +86,8 @@
     (call-next-method)))
 
 (defmethod report-on :before ((result result) (report plain))
-  (format T "~& ~:[      ~;~:*~6,3f~] ~a~v@{    ~} "
+  (format (output report)
+          "~& ~:[      ~;~:*~6,3f~] ~a~v@{    ~} "
           (duration result)
           (case (status result)
             (:passed  #+asdf-unicode "✔" #-asdf-unicode "o")
@@ -95,18 +97,19 @@
           *level* T))
 
 (defmethod report-on :after (thing (report plain))
-  (terpri)
-  (force-output))
+  (terpri (output report))
+  (force-output (output report)))
 
 (defmethod report-on ((result result) (report plain))
-  (write-string (print-object result :oneline)))
+  (write-string (print-object result :oneline) (output report)))
 
 (defun filter-test-results (results)
   (remove-if (lambda (a) (typep a 'test-result)) results))
 
 (defmethod summarize ((report plain))
   (let ((failures (results-with-status :failed report)))
-    (format T "~&~%~
+    (format (output report)
+            "~&~%~
              ;; Summary:~%~
              Passed:  ~4d~%~
              Failed:  ~4d~%~

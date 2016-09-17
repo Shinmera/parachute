@@ -27,6 +27,7 @@
    #:summarize
    #:quiet
    #:plain
+   #:output
    #:report-on
    #:interactive)
   ;; result.lisp
