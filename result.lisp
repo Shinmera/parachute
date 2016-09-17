@@ -28,7 +28,7 @@
    :description NIL))
 
 (defmethod initialize-instance :after ((result result) &key)
-  (when *parent* ;; I wish I had a better place for this...
+  (when (and *parent* (not (find result (children *parent*))))
     (vector-push-extend result (children *parent*)))
   (when (and *context* (not (find result (children *context*))))
     (vector-push-extend result (children *context*))))
