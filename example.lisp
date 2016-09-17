@@ -18,7 +18,8 @@
 
 (define-test subtest
   :parent example
-  (fail (error "An expected failure.")))
+  (fail (error "An expected failure."))
+  (fail (warn "An expected warning.") warning))
 
 (define-test failing
   (true (< 8 5))

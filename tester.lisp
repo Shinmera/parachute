@@ -58,7 +58,7 @@
     *context*
     (make-instance 'comparison-result
                    :expression '(capture-error ,form)
-                   :value (lambda () (capture-error ,form))
+                   :value (lambda () (capture-error ,form ,type))
                    :expected ',type
                    :comparison 'typep
                    ,@(when description
