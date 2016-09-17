@@ -171,6 +171,7 @@
   (let* ((test (expression result))
          (result (result-for-testable test context))
          (skipped (skipped-children test)))
+    (setf (description result) (description test))
     (cond ((loop for dep in (dependencies test)
                  for result = (find-child-result dep context)
                  thereis (eql :failed (status result)))

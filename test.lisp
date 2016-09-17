@@ -11,6 +11,7 @@
 (defclass test ()
   ((name :initarg :name :reader name)
    (home :initarg :home :reader home)
+   (description :initarg :description :accessor description)
    (parent :initarg :parent :accessor parent)
    (children :initform NIL :accessor children)
    (dependencies :initarg :depends-on :initarg :dependencies :accessor referenced-dependencies)
@@ -22,6 +23,7 @@
   (:default-initargs
    :name (error "NAME required.")
    :home *package*
+   :description NIL
    :parent NIL
    :dependencies NIL
    :fixtures NIL

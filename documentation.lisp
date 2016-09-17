@@ -228,9 +228,10 @@ The value may be NIL if the test has not yet been evaluated at all.
 See RESULT")
 
   (function description
-    "The description of what the result is about as a string or NIL.
+    "The description of what the test/result is about as a string or NIL.
 
-See RESULT")
+See RESULT
+See TEST")
 
   (type value-result
     "A result that carries some kind of test result value.
@@ -343,6 +344,7 @@ use REMOVE-TEST.
 
 See NAME
 See HOME
+See DESCRIPTION
 See PARENT
 See CHILDREN
 See DEPENDENCIES
