@@ -124,6 +124,7 @@ Portability layers exist for:
 
 * 5am
 * lisp-unit
+* Prove
 
 ## Extending Parachute
 ### Test and Result Evaluation
