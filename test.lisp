@@ -78,6 +78,7 @@
 (defun test-index (name package-ish)
   (let ((package
           (etypecase name
+            (test (home name))
             (symbol (or (find-package package-ish) (symbol-package name)))
             (string (if package-ish
                         (or (find-package package-ish)
