@@ -40,18 +40,23 @@
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
 
+(defun maybe-quote (expression)
+  (typecase expression
+    (cons (case (first expression)
+            ((quote lambda function) expression)
+            (T `',expression)))
+    (T `',expression)))
+
 (defmacro is (comp expected form &optional description &rest format-args)
-  (let ((exp (gensym "EXP")))
-    `(let ((,exp ,expected))
-       (eval-in-context
-        *context*
-        (make-instance 'comparison-result
-                       :expression ',form
-                       :value (lambda () ,form)
-                       :expected ,exp
-                       :comparison ',comp
-                       ,@(when description
-                           `(:description (format NIL ,description ,@format-args))))))))
+  `(eval-in-context
+    *context*
+    (make-instance 'comparison-result
+                   :expression ',form
+                   :value (lambda () ,form)
+                   :expected ,expected
+                   :comparison ,(maybe-quote comp)
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))))
 
 (defmacro fail (form &optional (type 'error) description &rest format-args)
   `(eval-in-context
