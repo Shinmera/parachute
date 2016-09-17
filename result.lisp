@@ -37,8 +37,13 @@
   (print-unreadable-object (result stream :type T)
     (format stream "~s ~a" (status result) (expression result))))
 
-(defmethod print-object ((result result) (type symbol))
+(defmethod print-object ((result result) (type (eql :oneline)))
   (format NIL "~a" (expression result)))
+
+(defmethod print-object ((result result) (type (eql :extensive)))
+  (format NIL "Test for ~a ~(~a~).~@[~%~a~]"
+          (expression result) (status result)
+          (description result)))
 
 (defmethod eval-in-context :around (context (result result))
   ;; Unless the status is unknown marked we should probably skip.
