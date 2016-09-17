@@ -13,7 +13,7 @@
   :depends-on (dependency)
   (true T)
   (false NIL)
-  (is < 5 8)
+  (is equal "A" (string :a))
   (of-type symbol 'foo))
 
 (define-test subtest
