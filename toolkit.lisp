@@ -38,15 +38,20 @@
     (stream
      (typecase thing
        (null (format output "()"))
-       (cons (format output "(")
-        (loop for (car . cdr) on thing
-              do (print-oneline car output)
-                 (typecase cdr
-                   (null)
-                   (cons (format output " "))
-                   (T (format output " . ")
-                    (print-oneline cdr output))))
-        (format output ")"))
+       (cons
+        (cond ((eql 'quote (first thing))
+               (format output "'")
+               (print-oneline (second thing) output))
+              (T
+               (format output "(")
+               (loop for (car . cdr) on thing
+                     do (print-oneline car output)
+                        (typecase cdr
+                          (null)
+                          (cons (format output " "))
+                          (T (format output " . ")
+                           (print-oneline cdr output))))
+               (format output ")"))))
        (string (prin1 thing output))
        (vector (format output "#(")
         (loop for i from 0 below (length thing)
