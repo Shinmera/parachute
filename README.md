@@ -113,6 +113,15 @@ And that should cover most of it. Parachute does not have any fancy ASDF integra
 
 This should allow you to run the tests via ASDF like so: `(asdf:test-system :main-system)`.
 
+## Portability Layers
+Parachute offers "zero-cost switching" by implementing basic portability layers that simulate another test frameworks' syntax and behaviour. This allows you to switch over from another test framework hopefully without having to change a single test in your suite.
+
+Usually the only thing you need to do to get this done is change the name of the framework in your test system dependencies to one prefixed with `parachute-`. However, since there's so many test frameworks, and each layer requires quite a bit of work and investigation, only some are supported.
+
+Portability layers exist for:
+
+* 5Am
+
 ## Extending Parachute
 ### Test and Result Evaluation
 Parachute follows its own evaluation semantics in order to run tests. Primarily this means that most everything goes through one central function called `eval-in-context`. This functions allows you to customise evaluation based on both what the context is, and what the object being "evaluated" is.
