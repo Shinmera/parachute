@@ -503,7 +503,7 @@ keyword arguments are always passed quoted.
 
 If you set a parent in the NAME, you cannot use the :PARENT karg and vice-
 versa. The following initargs are automatically always passed by DEFINE-TEST
-and should thus not appear as a karg: :NAME :HOME :TESTS :PARENT
+and should thus not appear as a karg: :NAME :TESTS :PARENT
 
 You can define child tests within the body of the test if they appear as
 \"toplevel\" forms. They will be taken out of the body forms and emitted
