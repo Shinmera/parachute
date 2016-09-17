@@ -50,15 +50,10 @@
     (format stream "~a::~a" (package-name (home test)) (name test))))
 
 (defmethod dependencies ((test test))
-  (loop for dep in (referenced-dependencies test)
-        for (home name) = (if (listp dep) dep (list (home test) dep))
-        for dependant-test = (find-test name home)
-        if dependant-test
-        collect dependant-test
-        else
-        do (cerror "Ignore the dependency."
-                   "The reference to the dependency ~a of ~a cannot be found within ~a."
-                   name (name test) home)))
+  (let ((deps (referenced-dependencies test)))
+    (unless (find (car deps) '(:and :or :not))
+      (push :and deps))
+    (resolve-dependency-combination deps test)))
 
 (defmethod skipped-children ((test test))
   (loop for dep in (referenced-skips test)
@@ -158,3 +153,40 @@
   (with-fixtures (fixtures test)
     (loop for test in (tests test)
           do (funcall test))))
+
+(defun resolve-dependency-combination (combination test)
+  (destructuring-bind (logop &rest combinations) combination
+    (flet ((find-test (name home)
+             (or (find-test name home)
+                 (cerror "Ignore the dependency."
+                         "The reference to the dependency ~a of ~a cannot be found within ~a."
+                         name (name test) home))))
+      (list* logop
+             (loop for comb in combinations
+                   for dep = (if (listp comb)
+                                 (cond ((find (first comb) '(:and :or :not))
+                                        (resolve-dependency-combination comb test))
+                                       ((= 2 (length comb))
+                                        (find-test (second comb) (first comb)))
+                                       (T (cerror "Ignore" "Malformed dependency spec: ~s" comb)))
+                                 (find-test comb (home test)))
+                   when dep collect dep)))))
+
+(defun eval-dependency-combination (context combination)
+  (destructuring-bind (logop &rest combinations) combination
+    (assert (find logop '(:and :or :not)))
+    (dolist (comb combinations)
+      (etypecase comb
+        (list (eval-dependency-combination context comb))
+        (test (eval-in-context context (result-for-testable comb context)))))))
+
+(defun check-dependency-combination (status context combination)
+  (flet ((check (comb)
+           (etypecase comb
+             (list (check-dependency-combination status context comb))
+             (test (eql status (status (find-child-result comb context)))))))
+    (destructuring-bind (logop &rest combinations) combination
+      (ecase logop
+        (:and (loop for comb in combinations always (check comb)))
+        (:or  (loop for comb in combinations thereis (check comb)))
+        (:not (loop for comb in combinations never (check comb)))))))

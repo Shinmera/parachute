@@ -395,18 +395,29 @@ See SERIAL
 See TEST")
 
   (function referenced-dependencies
-    "The list of test designators that reference a dependant test.
+    "The logical combination of test designators that reference a dependant test.
+
+DEPENDENCIES ::= (DEPENDENCY*) | (LOGOP DEPENDENCY*)
+LOGOP        ::= :OR | :AND | :NOT
+DEPENDENCY   ::= test-name | (home test-name) | DEPENDENCIES
 
 See DEPENDENCIES
 See TEST")
 
   (function dependencies
-    "The list of dependant tests. 
+    "The logical combination of dependant tests.
+
+DEPENDENCIES ::= (LOGOP DEPENDENCY*)
+LOGOP        ::= :OR | :AND | :NOT
+DEPENDENCY   ::= test-object | DEPENDENCIES
 
 If a dependency is referenced that does not exist, an error is signalled.
 Dependant tests must be evaluated before the test itself.
 
 See REFERENCED-DEPENDENCIES
+See CHECK-DEPENDENCY-COMBINATION
+See EVAL-DEPENDENCY-COMBINATION
+See RESOLVE-DEPENDENCY-COMBINATION
 See TEST")
 
   (function fixtures
@@ -517,16 +528,59 @@ set as serial. This means that if you need to wrap multiple testers in any
 other form, the inner tests cannot be shuffled accordingly. However, you can
 use the WITH-SHUFFLING macro.
 
+Note that the dependencies of the test can be a combined by logic operators
+of :AND :OR and :NOT. See REFERENCED-DEPENDENCIES for the necessary structure.
+
 See TEST
 See FIND-TEST
-See REMOVE-TEST")
+See REMOVE-TEST
+See REFERENCED-DEPENDENCIES")
 
   (function package-tests
     "Returns a list of all the tests defined in the given package.
 
 Signals an error if the PACKAGE cannot be resolved to a package object.
 
-See *TEST-INDEXES*"))
+See *TEST-INDEXES*")
+
+  (function resolve-dependency-combination
+    "Resolves the dependency combination COMBINATION for the TEST object.
+
+This turns all referenced test in the structure to actual test instances.
+
+COMBINATION ::= (LOGOP DEPENDENCY*)
+LOGOP       ::= :OR | :AND | :NOT
+DEPENDENCY  ::= test-name | (home test-name) | DEPENDENCY
+
+If a dependency that does not exist is referenced or the above structure is
+violated, an error is signalled.
+
+See REFERENCED-DEPENDENCIES
+See FIND-TEST")
+
+  (function eval-dependency-combination
+    "Evaluates the dependency combination under the given context.
+
+This simply traverses the structure recursively and calls EVAL-IN-CONTEXT
+on each test object. 
+
+An error is signalled if the structure is violated.
+
+See RESOLVE-DEPENDENCY-COMBINATION
+See EVAL-IN-CONTEXT")
+
+  (function check-dependency-combination
+    "Checks each test in the dependency combination against the given status.
+
+This traverses the dependency combination, retrieves the result from the 
+context for each test, compares its STATUS against the requested one, and then
+logically combines the results thereof according to the combinator's operation.
+
+An error is signalled if the structure is violated.
+
+See RESOLVE-DEPENDENCY-COMBINATION
+See STATUS
+See FIND-CHILD-RESULT"))
 
 ;; tester.lisp
 (docs:define-docs

@@ -46,6 +46,10 @@
   :depends-on (failing)
   (is = 5 5))
 
+(define-test emergency-dependency
+  :depends-on (:not bad-dependency)
+  (true "ALARM!!"))
+
 (define-test finish
   (finish T)
   (finish (error "NOPE")))

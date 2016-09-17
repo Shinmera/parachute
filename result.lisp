@@ -155,8 +155,7 @@
   ;; We have to run the dependencies here as they need to run before
   ;; the timing grips in the AROUND method of the RESULT class for
   ;; EVAL-IN-CONTEXT, which would count them running in a BEFORE.
-  (dolist (dep (dependencies (expression result)))
-    (eval-in-context context (result-for-testable dep context)))
+  (eval-dependency-combination context (dependencies (expression result)))
   (call-next-method)
   (let ((test (expression result)))
     (when (and (time-limit test)
@@ -172,12 +171,10 @@
          (result (result-for-testable test context))
          (skipped (skipped-children test)))
     (setf (description result) (description test))
-    (cond ((loop for dep in (dependencies test)
-                 for result = (find-child-result dep context)
-                 thereis (eql :failed (status result)))
-           (setf (status result) :skipped))
+    (cond ((check-dependency-combination :passed context (dependencies test))
+           (eval-in-context context test))
           (T
-           (eval-in-context context test)))
+           (setf (status result) :skipped)))
     (loop for child in (children test)
           for subresult = (result-for-testable child context)
           do (cond ((find child skipped)

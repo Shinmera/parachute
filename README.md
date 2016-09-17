@@ -23,6 +23,12 @@ Tests can have dependencies in order to ensure that you don't get cascade failur
       :depends-on (equality)
       (is = 5 (+ 2 3)))
 
+Dependencies can also be logically combined if you require more complicated dependency logic.
+
+    (define-test unexpected-failure-backup-test
+      :depends-on (:and equality (:not arithmetic))
+      (of-type number (+ 2 3))) ; Maybe everything broke?
+
 Often times it also makes sense to organise tests according to a hierarchy. For example you could have tests that reflect your type hierarchy, or other kind of structure within your system. You can also use this to create simple test suites.
 
     (define-test suite)
