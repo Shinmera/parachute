@@ -99,12 +99,11 @@ And that should cover most of it. Parachute does not have any fancy ASDF integra
 
     (asdf:defsystem main-system
       ...
-      :in-order-to ((asdf:test-system (asdf:test-system :test-system))))
+      :in-order-to ((asdf:test-op (asdf:test-op :test-system))))
 
     (asdf:defsystem test-system
       ...
-      :in-order-to ((asdf:test-system (funcall (find-symbol (string :test) :parachute) 
-                                               :test-package))))
+      :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :test-system)))
 
 This should allow you to run the tests via ASDF like so: `(asdf:test-system :main-system)`.
 
