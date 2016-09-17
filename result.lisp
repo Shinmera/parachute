@@ -38,7 +38,7 @@
     (format stream "~s ~a" (status result) (expression result))))
 
 (defmethod print-object ((result result) (type (eql :oneline)))
-  (format NIL "~a" (expression result)))
+  (print-oneline (expression result) NIL))
 
 (defmethod print-object ((result result) (type (eql :extensive)))
   (format NIL "Test for ~a ~(~a~).~@[~%~a~]"
