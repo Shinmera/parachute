@@ -41,6 +41,7 @@
    #:status
    #:duration
    #:description
+   #:format-result
    #:value-result
    #:value
    #:finishing-result

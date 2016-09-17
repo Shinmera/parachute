@@ -241,6 +241,13 @@ See RESULT")
 See RESULT
 See TEST")
 
+  (function format-result
+    "Formats the result into the requested representation as a string.
+
+The representation type can, by default, be either :ONELINE or :EXTENSIVE.
+
+See RESULT")
+
   (type value-result
     "A result that carries some kind of test result value.
 

@@ -37,10 +37,10 @@
   (print-unreadable-object (result stream :type T)
     (format stream "~s ~a" (status result) (expression result))))
 
-(defmethod print-object ((result result) (type (eql :oneline)))
+(defmethod format-result ((result result) (type (eql :oneline)))
   (print-oneline (expression result) NIL))
 
-(defmethod print-object ((result result) (type (eql :extensive)))
+(defmethod format-result ((result result) (type (eql :extensive)))
   (format NIL "Test for ~a ~(~a~).~@[~%~a~]"
           (expression result) (status result)
           (description result)))
@@ -86,14 +86,14 @@
   (print-unreadable-object (result stream :type T)
     (format stream "~s ~a"
             (status result)
-            (print-object result :oneline))))
+            (format-result result :oneline))))
 
-(defmethod print-object ((result comparison-result) (type (eql :oneline)))
+(defmethod format-result ((result comparison-result) (type (eql :oneline)))
   (let ((*print-lines* 1))
     (with-output-to-string (out)
       (print-oneline (list (comparison result) (expression result) (expected result)) out))))
 
-(defmethod print-object ((result comparison-result) (type (eql :extensive)))
+(defmethod format-result ((result comparison-result) (type (eql :extensive)))
   (let ((*print-right-margin* 600))
     (format NIL "The test form   ~a~%~
                  evaluated to    ~a~%~
@@ -142,15 +142,15 @@
 (defclass test-result (parent-result)
   ())
 
-(defmethod print-object ((result test-result) (type (eql :oneline)))
+(defmethod format-result ((result test-result) (type (eql :oneline)))
   (format NIL "~a::~a"
           (package-name (home (expression result)))
           (name (expression result))))
 
-(defmethod print-object ((result test-result) (type (eql :extensive)))
+(defmethod format-result ((result test-result) (type (eql :extensive)))
   (format NIL "~4d/~4d tests failed in ~a~@[~%~a~]"
           (length (results-with-status :failed result)) (length (children result))
-          (print-object result :oneline)
+          (format-result result :oneline)
           (description result)))
 
 (defmethod eval-in-context :around (context (result test-result))
