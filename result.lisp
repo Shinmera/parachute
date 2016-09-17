@@ -60,6 +60,16 @@
                          (function (funcall (value result)))
                          (T (value result)))))
 
+(defclass finishing-result (value-result)
+  ())
+
+(defmethod eval-in-context (context (result finishing-result))
+  (unwind-protect
+       (progn (call-next-method)
+              (setf (status result) :passed))
+    (unless (eql :passed (status result))
+      (setf (status result) :failed))))
+
 (defclass comparison-result (value-result)
   ((expected :initarg :expected :accessor expected)
    (comparison :initarg :comparison :accessor comparison))

@@ -42,6 +42,7 @@
    #:description
    #:value-result
    #:value
+   #:finishing-result
    #:comparison-result
    #:expected
    #:comparison
@@ -75,7 +76,8 @@
    #:false
    #:is
    #:fail
-   #:of-type)
+   #:of-type
+   #:finish)
   ;; toolkit.lisp
   (:export
    #:with-shuffling))

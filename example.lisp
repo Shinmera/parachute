@@ -46,3 +46,6 @@
   :depends-on (failing)
   (is = 5 5))
 
+(define-test finish
+  (finish T)
+  (finish (error "NOPE")))

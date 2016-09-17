@@ -74,3 +74,12 @@
                    :comparison 'typep
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
+
+(defmacro finish (form &optional description &rest format-args)
+  `(eval-in-context
+    *context*
+    (make-instance 'finishing-result
+                   :expression '(complete ,form)
+                   :value (lambda () ,form)
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))))

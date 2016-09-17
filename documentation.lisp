@@ -251,6 +251,11 @@ be interpreted as having to be called on EVAL-IN-CONTEXT.
 
 See VALUE-RESULT")
 
+  (type finishing-result
+    "A result that only passes if its evaluation proceeds without escaping.
+
+See VALUE-RESULT")
+
   (type comparison-result
     "A result that compares against an expected value by some kind of comparator.
 
@@ -543,7 +548,10 @@ By default only subconditions of ERROR are caught.")
     "A tester that succeeds if the form signals an error of the requested type, defaulting to ERROR.")
 
   (function of-type
-    "A tester that succeeds if the form returns a value that is of the requested type."))
+    "A tester that succeeds if the form returns a value that is of the requested type.")
+
+  (function finish
+    "A tester that succeeds if the form returns without escaping."))
 
 ;; toolkit.lisp
 (docs:define-docs
