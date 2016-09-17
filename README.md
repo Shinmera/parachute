@@ -120,7 +120,8 @@ Usually the only thing you need to do to get this done is change the name of the
 
 Portability layers exist for:
 
-* 5Am
+* 5am
+* lisp-unit
 
 ## Extending Parachute
 ### Test and Result Evaluation
