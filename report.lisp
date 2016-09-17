@@ -8,6 +8,7 @@
 
 (defun resolve-tests (designator)
   (etypecase designator
+    (test (list designator))
     (list (mapcan #'resolve-tests designator))
     (package (package-tests designator))
     ((or symbol string)
