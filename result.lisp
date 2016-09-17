@@ -89,21 +89,23 @@
             (print-object result :oneline))))
 
 (defmethod print-object ((result comparison-result) (type (eql :oneline)))
-  (format NIL "(~a ~s ~s)"
-          (comparison result) (expression result) (expected result)))
+  (let ((*print-lines* 1))
+    (with-output-to-string (out)
+      (print-oneline (list (comparison result) (expression result) (expected result)) out))))
 
 (defmethod print-object ((result comparison-result) (type (eql :extensive)))
-  (format NIL "The test form   ~a~%~
-               evaluated to    ~a~%~
-               when            ~a~%~
-               was expected under ~a.~@[~%~a~]"
-          (expression result)
-          (if (slot-boundp result 'value)
-              (value result)
-              (gensym "UNBOUND"))
-          (expected result)
-          (comparison result)
-          (description result)))
+  (let ((*print-right-margin* 600))
+    (format NIL "The test form   ~a~%~
+                 evaluated to    ~a~%~
+                 when            ~a~%~
+                 was expected under ~a.~@[~%~a~]"
+            (print-oneline (expression result) NIL)
+            (if (slot-boundp result 'value)
+                (value result)
+                (gensym "UNBOUND"))
+            (print-oneline (expected result) NIL)
+            (comparison result)
+            (description result))))
 
 (defmethod eval-in-context (context (result comparison-result))
   (call-next-method)

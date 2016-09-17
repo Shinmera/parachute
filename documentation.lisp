@@ -634,4 +634,13 @@ See SHUFFLE")
     "Returns a new plist with the key/value pairs of the indicators removed.")
 
   (function locked-package-p
-    "Returns T if the given package is (assumed to be) locked and whose function bindings should thus not be changed."))
+    "Returns T if the given package is (assumed to be) locked and whose function bindings should thus not be changed.")
+
+  (function print-oneline
+    "Attempts to print the given object to the stream designator in one line.
+
+This is mostly to avoid the standard printer's annoying line break behaviour
+as it over-eagerly inserts line breaks and makes the output spammy, especially
+for the plain report. This prints vectors (not strings) and lists on one line
+for sure. Everything else might still incur line breaks, but I believe that that
+is mostly outside of my control."))
