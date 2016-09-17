@@ -61,7 +61,7 @@
 
 (defvar *level* 0)
 
-(defmethod eval-in-context :before ((report plain) (result test-result))
+(defmethod eval-in-context :before ((report plain) (result parent-result))
   ;; This leads to more readable traces as otherwise the hierarchy is
   ;; printed with parents after children.
   (report-on result report))
