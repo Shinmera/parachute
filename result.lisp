@@ -35,7 +35,7 @@
 
 (defmethod print-object ((result result) stream)
   (print-unreadable-object (result stream :type T)
-    (format stream "~s ~a" (status result) (expression result))))
+    (format stream "~s ~a" (status result) (format-result result :oneline))))
 
 (defmethod format-result ((result result) (type (eql :oneline)))
   (print-oneline (expression result) NIL))
@@ -76,22 +76,13 @@
       (setf (status result) :failed))))
 
 (defclass comparison-result (value-result)
-  ((expected :initarg :expected :accessor expected)
+  ((value-form :initarg :value-form :accessor value-form)
+   (expected :initarg :expected :accessor expected)
    (comparison :initarg :comparison :accessor comparison))
   (:default-initargs
+   :value-form :unknown
    :expected '(not null)
    :comparison 'typep))
-
-(defmethod print-object ((result comparison-result) stream)
-  (print-unreadable-object (result stream :type T)
-    (format stream "~s ~a"
-            (status result)
-            (format-result result :oneline))))
-
-(defmethod format-result ((result comparison-result) (type (eql :oneline)))
-  (let ((*print-lines* 1))
-    (with-output-to-string (out)
-      (print-oneline (list (comparison result) (expression result) (expected result)) out))))
 
 (defmethod format-result ((result comparison-result) (type (eql :extensive)))
   (let ((*print-right-margin* 600))
@@ -99,7 +90,7 @@
                  evaluated to    ~a~%~
                  when            ~a~%~
                  was expected under ~a.~@[~%~a~]"
-            (print-oneline (expression result) NIL)
+            (print-oneline (value-form result) NIL)
             (if (slot-boundp result 'value)
                 (value result)
                 (gensym "UNBOUND"))

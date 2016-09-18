@@ -278,9 +278,15 @@ See VALUE-RESULT")
 This result sets its status based on the boolean return value of a test
 of its value against an expected, preset value.
 
+See VALUE-FORM
 See EXPECTED
 See COMPARISON
 See VALUE-RESULT")
+
+  (function value-form
+    "A literal representation of the form that produces the value for the test.
+
+See COMPARISON-RESULT")
 
   (function expected
     "A value that should be equal (under some predicate) to what the test evaluates to.

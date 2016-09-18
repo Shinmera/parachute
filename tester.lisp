@@ -10,7 +10,8 @@
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
-                   :expression ',form
+                   :expression '(true ,form)
+                   :value-form ',form
                    :value (lambda () ,form)
                    :expected 'T
                    :comparison 'geq
@@ -21,7 +22,8 @@
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
-                   :expression ',form
+                   :expression '(false ,form)
+                   :value-form ',form
                    :value (lambda () ,form)
                    :expected 'NIL
                    :comparison 'geq
@@ -32,7 +34,8 @@
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
-                   :expression ',form
+                   :expression '(is ,comp ,expected ,form)
+                   :value-form ',form
                    :value (lambda () ,form)
                    :expected ,expected
                    :comparison ,(maybe-quote comp)
@@ -43,7 +46,8 @@
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
-                   :expression '(capture-error ,form)
+                   :expression '(fail ,form ,type)
+                   :value-form '(capture-error ,form)
                    :value (lambda () (capture-error ,form ,(maybe-unquote type)))
                    :expected ',(maybe-unquote type)
                    :comparison 'typep
@@ -54,7 +58,8 @@
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
-                   :expression ',form
+                   :expression '(of-type ,type ,form)
+                   :value-form ',form
                    :value (lambda () ,form)
                    :expected ',(maybe-unquote type)
                    :comparison 'typep
@@ -65,7 +70,8 @@
   `(eval-in-context
     *context*
     (make-instance 'finishing-result
-                   :expression '(complete ,form)
+                   :expression '(finish ,form)
+                   :value-form '(complete ,form)
                    :value (lambda () ,form)
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
