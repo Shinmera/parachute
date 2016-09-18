@@ -481,10 +481,9 @@ See DEFINE-TEST</pre>
                     <pre class="docstring">A result object for tests.
 
 This takes care of properly evaluating the test by following these steps:
-1. Run all tests in the test's DEPENDENCIES
-2. If any of the dependant tests result in a :FAILED status,
-   mark the result as :SKIPPED. Otherwise,
-   call each function returned by TESTS of the test.
+1. Run all tests in the test's DEPENDENCIES as per EVAL-DEPENDENCY-COMBINATION
+2. Check that all dependencies have a :PASSED status as per the dependency
+   combination by running CHECK-DEPENDENCY-COMBINATION
 3. For each child in the test's CHILDREN
    create a result by RESULT-FOR-TESTABLE
    if the child is part of the test's SKIPPED-CHILDREN
@@ -495,7 +494,9 @@ The methods implemented by PARENT-RESULT and RESULT will in turn
 take care to implement proper status setting and avoiding duplicate
 evaluation.
 
-See PARENT-RESULT</pre>
+See PARENT-RESULT
+See EVAL-DEPENDENCY-COMBINATION
+See CHECK-DEPENDENCY-COMBINATION</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:VALUE-RESULT"/>
