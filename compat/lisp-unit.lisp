@@ -101,7 +101,7 @@
   `(parachute:true (funcall ,test ,expected ,form)))
 
 (defmacro assert-prints (output form)
-  `(parachute:is equalp ,output (capture-stdout ,form)))
+  `(parachute:is equal ,output (capture-stdout ,form)))
 
 (defmacro assert-nil (form)
   `(parachute:false ,form))
