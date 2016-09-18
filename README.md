@@ -120,11 +120,12 @@ Usually the only thing you need to do to get this done is change the name of the
 
 The layers only mirror the public API of the test frameworks and leave out any extension mechanisms. They also do not attempt to mirror the output format or interaction method by which the other frameworks functioned, as there would be little point to mirroring them exactly.
 
-Portability layers exist for:
+Compatibility layers exist for:
 
-* 5am
-* lisp-unit
-* Prove
+* [5am](https://common-lisp.net/project/fiveam/)
+* [lisp-unit](https://github.com/OdonataResearchLLC/lisp-unit)
+* [prove](https://github.com/fukamachi/prove)  
+  Note: make sure to both change the `:depends-on` and `:defsystem-depends-on` to `parachute-prove` if you happen to use the ASDF extension.
 
 ## Extending Parachute
 ### Test and Result Evaluation
