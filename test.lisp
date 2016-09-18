@@ -90,7 +90,8 @@
   (if (typep name 'test)
       name
       (let ((index (test-index name package-ish)))
-        (when index (gethash (string name) index)))))
+        (or (when index (gethash (string name) index))
+            (when (not package-ish) (find-test name *package*))))))
 
 (defun (setf find-test) (test-instance name &optional package-ish)
   (multiple-value-bind (index package) (test-index name package-ish)
@@ -99,8 +100,8 @@
     ;; Make sure to properly deregister test before adding a potentially new one.
     ;; The reason for this is that we want to ensure that if options were removed
     ;; that they are properly erased from the system wholly.
-    (when (find-test name package-ish)
-      (remove-test name package-ish))
+    (when (find-test name package)
+      (remove-test name package))
     ;; Add the test to the children list directly. We can't do that in the class'
     ;; init function as then the child would be removed again in the above call.
     (when (parent test-instance)
@@ -113,10 +114,11 @@
   (let* ((test (or (find-test name package-ish)
                    (error "No such test ~a." name)))
          (parent (parent test))
-         (index (test-index name package-ish)))
+         (index (test-index name (home test))))
     (remhash (string name) index)
     (when parent
-      (setf (children parent) (remove test (children parent))))))
+      (setf (children parent) (remove test (children parent))))
+    name))
 
 (defmacro define-test (name &body arguments-and-body)
   (destructuring-bind (nparent name) (if (listp name) name (list NIL name))

@@ -492,6 +492,10 @@ See FIND-TEST")
 
 If the name is a symbol, the package defaults to the symbol's package.
 If the name is a string, the package defaults to *PACKAGE*.
+If no explicit package has been given and no test has been found, the
+search is automatically retried with the package set to *PACKAGE*. This
+should avoid confusion in the case of imported symbols and tests defined
+under the local package.
 
 This function can also be used as a place in order to register a test.
 When a test is set, the preexisting test if any is first removed by
