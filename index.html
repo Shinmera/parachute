@@ -128,21 +128,21 @@
 <pre><code>(<a href="#PARACHUTE:TEST">test</a> 'arithmetic)
 </code></pre>
 
-<p><img src="https://filebox.tymoon.eu/file/TVRFMU1RPT0=" alt="plain-test-result"/></p>
+<p><img src="https://filebox.tymoon.eu/file/TVRFMU5RPT0=" alt="plain-test-result"/></p>
 
 <p>There are two more report types included in the standard distribution, namely <code><a href="#PARACHUTE:QUIET">quiet</a></code> and <code><a href="#PARACHUTE:INTERACTIVE">interactive</a></code>. The former should not produce any output or user-interaction whatseover.</p>
 
 <pre><code>(<a href="#PARACHUTE:TEST">test</a> 'arithmethic :report 'quiet)
 </code></pre>
 
-<p><img src="https://filebox.tymoon.eu/file/TVRFMU1nPT0=" alt="quiet-test-result"/></p>
+<p><img src="https://filebox.tymoon.eu/file/TVRFMU5BPT0=" alt="quiet-test-result"/></p>
 
 <p>The latter on the other hand will present you the debugger with a handful of useful restarts whenever a test fails. This allows you to iteratively and dynamically develop and refine tests.</p>
 
 <pre><code>(<a href="#PARACHUTE:TEST">test</a> 'arithmetic :report 'interactive)
 </code></pre>
 
-<p><img src="https://filebox.tymoon.eu/file/TVRFMU13PT0=" alt="interactive-test-result"/></p>
+<p><img src="https://filebox.tymoon.eu/file/TVRFMU5nPT0=" alt="interactive-test-result"/></p>
 
 <p>And that should cover most of it. Parachute does not have any fancy ASDF integration, however I don't believe any is needed anyway. Simply modifying your main system and test system as follows should be sufficient.</p>
 
@@ -291,6 +291,7 @@ See DEFINE-FIXTURE-RESTORE</pre>
 This result sets its status based on the boolean return value of a test
 of its value against an expected, preset value.
 
+See VALUE-FORM
 See EXPECTED
 See COMPARISON
 See VALUE-RESULT</pre>
@@ -821,6 +822,21 @@ has been run based on this value. It may be a function object, which will
 be interpreted as having to be called on EVAL-IN-CONTEXT.
 
 See VALUE-RESULT</pre>
+                  </article>
+                </li><li>
+                  <a name="PARACHUTE:VALUE-FORM"/>
+                  <article>
+                    <header class="accessor">
+                      <span class="type">accessor</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:VALUE-FORM" class="name">VALUE-FORM</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(OBJECT)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">A literal representation of the form that produces the value for the test.
+
+See COMPARISON-RESULT</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:CALL-WITH-FIXTURES"/>
