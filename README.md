@@ -87,19 +87,19 @@ Tests are run under a `report` context, which gathers a bunch of `result` object
 
     (test 'arithmetic)
 
-![plain-test-result](https://filebox.tymoon.eu/file/TVRFMU1RPT0=)
+![plain-test-result](https://filebox.tymoon.eu/file/TVRFMU5RPT0=)
 
 There are two more report types included in the standard distribution, namely `quiet` and `interactive`. The former should not produce any output or user-interaction whatseover.
 
     (test 'arithmethic :report 'quiet)
 
-![quiet-test-result](https://filebox.tymoon.eu/file/TVRFMU1nPT0=)
+![quiet-test-result](https://filebox.tymoon.eu/file/TVRFMU5BPT0=)
 
 The latter on the other hand will present you the debugger with a handful of useful restarts whenever a test fails. This allows you to iteratively and dynamically develop and refine tests.
 
     (test 'arithmetic :report 'interactive)
 
-![interactive-test-result](https://filebox.tymoon.eu/file/TVRFMU13PT0=)
+![interactive-test-result](https://filebox.tymoon.eu/file/TVRFMU5nPT0=)
 
 And that should cover most of it. Parachute does not have any fancy ASDF integration, however I don't believe any is needed anyway. Simply modifying your main system and test system as follows should be sufficient.
 
