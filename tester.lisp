@@ -42,6 +42,19 @@
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
 
+(defmacro isnt (comp expected form &optional description &rest format-args)
+  `(eval-in-context
+    *context*
+    (make-instance 'comparison-result
+                   :expression '(is ,comp ,expected ,form)
+                   :value-form ',form
+                   :value (lambda () ,form)
+                   :expected ,expected
+                   :comparison ,(maybe-quote comp)
+                   :comparison-geq NIL
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))))
+
 (defmacro fail (form &optional (type 'error) description &rest format-args)
   `(eval-in-context
     *context*

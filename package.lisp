@@ -49,6 +49,7 @@
    #:value-form
    #:expected
    #:comparison
+   #:comparison-geq
    #:parent-result
    #:children
    #:find-child-result
@@ -78,6 +79,7 @@
    #:true
    #:false
    #:is
+   #:isnt
    #:fail
    #:of-type
    #:finish)

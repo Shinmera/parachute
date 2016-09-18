@@ -78,31 +78,35 @@
 (defclass comparison-result (value-result)
   ((value-form :initarg :value-form :accessor value-form)
    (expected :initarg :expected :accessor expected)
-   (comparison :initarg :comparison :accessor comparison))
+   (comparison :initarg :comparison :accessor comparison)
+   (comparison-geq :initarg :comparison-geq :accessor comparison-geq))
   (:default-initargs
    :value-form :unknown
    :expected '(not null)
-   :comparison 'typep))
+   :comparison 'typep
+   :comparison-geq T))
 
 (defmethod format-result ((result comparison-result) (type (eql :extensive)))
   (let ((*print-right-margin* 600))
     (format NIL "The test form   ~a~%~
                  evaluated to    ~a~%~
                  when            ~a~%~
-                 was expected under ~a.~@[~%~a~]"
+                 was expected to be ~:[unequal~;equal~] under ~a.~@[~%~a~]"
             (print-oneline (value-form result) NIL)
             (if (slot-boundp result 'value)
                 (value result)
                 (gensym "UNBOUND"))
             (print-oneline (expected result) NIL)
+            (comparison-geq result)
             (comparison result)
             (description result))))
 
 (defmethod eval-in-context (context (result comparison-result))
   (call-next-method)
-  (if (ignore-errors (funcall (comparison result)
-                              (value result)
-                              (expected result)))
+  (if (ignore-errors (geq (funcall (comparison result)
+                                   (value result)
+                                   (expected result))
+                          (comparison-geq result)))
       (setf (status result) :passed)
       (setf (status result) :failed)))
 

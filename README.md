@@ -2,7 +2,7 @@
 Parachute is a simple-to-use and extensible testing framework.
 
 ## How To
-In Parachute, things are organised as a bunch of named tests within a package. Each test can contain a bunch of test forms that make up its body. By default `true`, `false`, `fail`, `is`, `of-type`, and `finish` are provided as test forms.
+In Parachute, things are organised as a bunch of named tests within a package. Each test can contain a bunch of test forms that make up its body. By default `true`, `false`, `fail`, `is`, `isnt`, `of-type`, and `finish` are provided as test forms.
 
     (define-test numbers
       (of-type integer 5)

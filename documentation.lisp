@@ -281,6 +281,7 @@ of its value against an expected, preset value.
 See VALUE-FORM
 See EXPECTED
 See COMPARISON
+See COMPARISON-GEQ
 See VALUE-RESULT")
 
   (function value-form
@@ -297,6 +298,14 @@ See COMPARISON-RESULT")
     "The comparison function designator that compares the expected and actual values of the test.
 
 See COMPARISON-RESULT")
+
+  (function comparison-geq
+    "The value to which the comparison result must be GEQ to.
+
+Defaults to T.
+
+See COMPARISON-RESULT
+See GEQ")
 
   (type parent-result
     "A result that does not directly perform a test, but rather serves as an aggregate for multiple tests.
