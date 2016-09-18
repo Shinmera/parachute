@@ -591,21 +591,6 @@ See FIND-CHILD-RESULT"))
 
 ;; tester.lisp
 (docs:define-docs
-  (function geq
-    "Returns true if the value is of the expected general boolean.
-
-More specifically, the following table is followed:
-VALUE EXPECTED RESULT
-  T      T        T
- NIL     T       NIL
- NIL    NIL       T
-  T     NIL      NIL")
-
-  (function capture-error
-    "Returns the condition signalled by the form, or NIL if none was signalled.
-
-By default only subconditions of ERROR are caught.")
-    
   (function true
     "A tester that succeeds if the form returns a non-NIL value.")
 
@@ -650,4 +635,45 @@ This is mostly to avoid the standard printer's annoying line break behaviour
 as it over-eagerly inserts line breaks and makes the output spammy, especially
 for the plain report. This prints vectors (not strings) and lists on one line
 for sure. Everything else might still incur line breaks, but I believe that that
-is mostly outside of my control."))
+is mostly outside of my control.")
+
+  (function geq
+    "Returns true if the value is of the expected general boolean.
+
+More specifically, the following table is followed:
+VALUE EXPECTED RESULT
+  T      T        T
+ NIL     T       NIL
+ NIL    NIL       T
+  T     NIL      NIL")
+
+  (function capture-error
+    "Returns the condition signalled by the form, or NIL if none was signalled.
+
+By default only subconditions of ERROR are caught.")
+
+  (function maybe-quote
+    "Quotes the expression if it is necessary to do so.
+
+It is considered unnecessary to quote the expression if:
+  - The expression is a list that has one of the following symbols as its
+    first element:
+    - QUOTE
+    - LAMBDA
+    - FUNCTION
+    - SB-INT:QUASIQUOTE
+    - SI:QUASIQUOTE
+  - It is constant under CONSTANTP
+
+Implementations other than SBCL and ECL are \"out of luck\" when it comes
+to quasiquoting. Generally you just shouldn't quasiquote for this anyway
+since it is most likely useful for packing a value in a macro where the
+lexical references could not be resolved.")
+
+  (function maybe-unquote
+    "Unquotes the expression if it is plausible to do so.
+
+If the form is a cons, it is EVALed. This is the only way I can think of to
+have any kind of hope to unquote quasiquoted expressions portably. Naturally
+this will error if the quasiquote contains any form of lexical references
+that are unresolvable."))

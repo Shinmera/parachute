@@ -60,3 +60,40 @@
                    (format output " ")))
         (format output ")"))
        (T (princ thing output))))))
+
+(defun geq (value expected)
+  (if expected
+      value
+      (not value)))
+
+(defmacro capture-error (form &optional (condition 'error))
+  (let ((err (gensym "ERR")))
+    `(handler-case
+         (prog1 NIL ,form)
+       (,condition (,err)
+         ,err))))
+
+(defun maybe-quote (expression)
+  (typecase expression
+    (list (case (first expression)
+            ((quote lambda function #+sbcl sb-int:quasiquote #+ecl si:quasiquote)
+             expression)
+            (T `',expression)))
+    (T (if (constantp expression)
+           expression
+           `',expression))))
+
+(defun maybe-unquote (expression)
+  (typecase expression
+    (cons
+     ;; We assume that this is a form that'll produce an unquoted value
+     ;; either by being a direct quote or by being quasiquoted in some
+     ;; implementation-defined manner. Either way, evaluating it should
+     ;; yield our value. Naturally this will fail if it needs to reference
+     ;; lexical variables.
+     (handler-case (eval expression)
+       (error (err)
+         (error "Failed to unquote ~s. You probably have lexical variables that can't be resolved.~%~
+                 The actual error said: ~a"
+                expression err))))
+    (T expression)))

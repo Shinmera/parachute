@@ -6,18 +6,6 @@
 
 (in-package #:org.shirakumo.parachute)
 
-(defun geq (value expected)
-  (if expected
-      value
-      (not value)))
-
-(defmacro capture-error (form &optional (condition 'error))
-  (let ((err (gensym "ERR")))
-    `(handler-case
-         (prog1 NIL ,form)
-       (,condition (,err)
-         ,err))))
-
 (defmacro true (form &optional description &rest format-args)
   `(eval-in-context
     *context*
@@ -40,13 +28,6 @@
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
 
-(defun maybe-quote (expression)
-  (typecase expression
-    (cons (case (first expression)
-            ((quote lambda function) expression)
-            (T `',expression)))
-    (T `',expression)))
-
 (defmacro is (comp expected form &optional description &rest format-args)
   `(eval-in-context
     *context*
@@ -63,8 +44,8 @@
     *context*
     (make-instance 'comparison-result
                    :expression '(capture-error ,form)
-                   :value (lambda () (capture-error ,form ,type))
-                   :expected ',type
+                   :value (lambda () (capture-error ,form ,(maybe-unquote type)))
+                   :expected ',(maybe-unquote type)
                    :comparison 'typep
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
@@ -75,7 +56,7 @@
     (make-instance 'comparison-result
                    :expression ',form
                    :value (lambda () ,form)
-                   :expected ',type
+                   :expected ',(maybe-unquote type)
                    :comparison 'typep
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
