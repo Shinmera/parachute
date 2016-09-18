@@ -120,7 +120,7 @@
 
 (defmacro define-test (name &body arguments-and-body)
   (destructuring-bind (nparent name) (if (listp name) name (list NIL name))
-    (form-fiddle:with-body-options (body options parent home (test-class 'test)) arguments-and-body
+    (form-fiddle:with-body-options (body options parent home (test-class 'test) (compile-at :compile-time)) arguments-and-body
       (let ((body (remove 'define-test body :key (lambda (a) (when (listp a) (car a))) :test #'eql))
             (defs (remove 'define-test body :key (lambda (a) (when (listp a) (car a))) :test-not #'eql))
             (home (or home *package*)))
@@ -132,7 +132,9 @@
                                 :name ',name
                                 :home ,home
                                 :tests (list ,@(loop for form in body
-                                                     collect `(lambda () ,form)))
+                                                     collect (ecase compile-at
+                                                               (:compile-time `(lambda () ,form))
+                                                               (:execute `(lambda () (call-compile ',form))))))
                                 :parent ',(or parent nparent)
                                 ,@(loop for option in options
                                         collect `',option)))

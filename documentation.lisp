@@ -542,6 +542,12 @@ set as serial. This means that if you need to wrap multiple testers in any
 other form, the inner tests cannot be shuffled accordingly. However, you can
 use the WITH-SHUFFLING macro.
 
+The karg :COMPILE-AT directs whether each test form should be compiled at
+definition time (default, value :COMPILE-TIME) or at test evaluation time
+(value :EXECUTE). The latter is achieved by, instead of a straight-up LAMBDA
+for each test form, it wraps it in a LAMBDA that calls COMPILE on the source
+form.
+
 Note that the dependencies of the test can be a combined by logic operators
 of :AND :OR and :NOT. See REFERENCED-DEPENDENCIES for the necessary structure.
 
@@ -683,4 +689,7 @@ lexical references could not be resolved.")
 If the form is a cons, it is EVALed. This is the only way I can think of to
 have any kind of hope to unquote quasiquoted expressions portably. Naturally
 this will error if the quasiquote contains any form of lexical references
-that are unresolvable."))
+that are unresolvable.")
+
+  (function call-compile
+    "Compiles the form with muffled warnings and calls the resulting function."))

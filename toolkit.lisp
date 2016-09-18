@@ -97,3 +97,7 @@
                  The actual error said: ~a"
                 expression err))))
     (T expression)))
+
+(defun call-compile (form)
+  (handler-bind (((or warning #+sbcl sb-ext:compiler-note) #'muffle-warning))
+    (funcall (compile NIL `(lambda () ,form)))))
