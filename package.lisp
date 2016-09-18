@@ -46,6 +46,7 @@
    #:value
    #:finishing-result
    #:comparison-result
+   #:value-form
    #:expected
    #:comparison
    #:parent-result
