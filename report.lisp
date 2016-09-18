@@ -151,4 +151,6 @@
 
 (defmethod eval-in-context :after ((report interactive) (result result))
   (when (eql :failed (status result))
-    (error "Test failed:~%~a" (format-result result :extensive))))
+    (error "Test ~a failed:~%~a"
+           (print-oneline (expression result) NIL)
+           (format-result result :extensive))))
