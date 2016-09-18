@@ -39,11 +39,11 @@
                           (continue err))))
     (dependencies test))
   (when parent
-    (let ((parent (find-test parent home)))
-      (unless parent
+    (let ((found (find-test parent home)))
+      (unless found
         (error "Could not find a parent by the name of ~a within ~a's home ~a!"
                parent name home))
-      (setf (parent test) parent))))
+      (setf (parent test) found))))
 
 (defmethod print-object ((test test) stream)
   (print-unreadable-object (test stream :type T)
