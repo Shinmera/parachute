@@ -56,6 +56,13 @@
   (<a href="#PARACHUTE:IS">is</a> = 5 (<a href="http://l1sp.org/cl/+">+</a> 2 3)))
 </code></pre>
 
+<p>Dependencies can also be logically combined if you require more complicated dependency logic.</p>
+
+<pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> unexpected-failure-backup-test
+  :depends-on (:and equality (:not arithmetic))
+  (<a href="#PARACHUTE:OF-TYPE">of-type</a> number (<a href="http://l1sp.org/cl/+">+</a> 2 3))) ; Maybe everything broke?
+</code></pre>
+
 <p>Often times it also makes sense to organise tests according to a hierarchy. For example you could have tests that reflect your type hierarchy, or other kind of structure within your system. You can also use this to create simple test suites.</p>
 
 <pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> suite)
@@ -141,15 +148,31 @@
 
 <pre><code>(asdf:defsystem main-system
   ...
-  :in-order-to ((asdf:test-system (asdf:test-system :test-system))))
+  :in-order-to ((asdf:test-op (asdf:test-op :test-system))))
 
 (asdf:defsystem test-system
   ...
-  :in-order-to ((asdf:test-system (<a href="http://l1sp.org/cl/funcall">funcall</a> (<a href="http://l1sp.org/cl/find-symbol">find-symbol</a> (<a href="http://l1sp.org/cl/string">string</a> :test) :parachute) 
-                                           :test-package))))
+  :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :test-system)))
 </code></pre>
 
 <p>This should allow you to run the tests via ASDF like so: <code>(asdf:test-system :main-system)</code>.</p>
+
+<h2>Compatibility Layers</h2>
+
+<p>Parachute offers &quot;zero-cost switching&quot; by implementing basic compatibility layers that simulate another test framework's syntax and behaviour. This allows you to switch over from another test framework hopefully without having to change a single test in your suite.</p>
+
+<p>Usually the only thing you need to do to get this done is change the name of the framework in your test system dependencies to one prefixed with <code>parachute-</code>. However, since there's so many test frameworks, and each layer requires quite a bit of work and investigation, only some are supported.</p>
+
+<p>The layers only mirror the public API of the test frameworks and leave out any extension mechanisms. They also do not attempt to mirror the output format or interaction method by which the other frameworks functioned, as there would be little point to mirroring them exactly.</p>
+
+<p>Compatibility layers exist for:</p>
+
+<ul>
+<li><a href="https://common-lisp.net/project/fiveam/">5am</a></li>
+<li><a href="https://github.com/OdonataResearchLLC/lisp-unit">lisp-unit</a></li>
+<li><a href="https://github.com/fukamachi/prove">prove</a><br/>
+  Note: make sure to both change the <code>:depends-on</code> and <code>:defsystem-depends-on</code> to <code>parachute-prove</code> if you happen to use the ASDF extension.</li>
+</ul>
 
 <h2>Extending Parachute</h2>
 
@@ -181,7 +204,7 @@
 
 <p>Since you can control pretty much every aspect of evaluation rather closely, very different behaviours and recovery mechanisms are also possible to achieve. One final aspect to note is <code><a href="#PARACHUTE:RESULT-FOR-TESTABLE">result-for-testable</a></code>, which should return an appropriate result object for the given testable. This should only return fresh result objects if no result is already known for the testable in the given context. The standard tests provide for this, however they only ever return a standard <code><a href="#PARACHUTE:TEST-RESULT">test-result</a></code> instance. If you need to customise the behaviour of the evaluation for that part, it would be a wise idea to subclass <code><a href="#PARACHUTE:TEST-RESULT">test-result</a></code> and make sure to return instances thereof from <code><a href="#PARACHUTE:RESULT-FOR-TESTABLE">result-for-testable</a></code> for your report.</p>
 
-<p>Finally it should be noted that if you happen to create new <code><a href="#PARACHUTE:RESULT">result</a></code> types that you might want to run using the default reports, you should add methods to <code><a href="http://l1sp.org/cl/print-object">print-object</a></code> that specialise on the keywords <code>:oneline</code> and <code>:extensive</code> for the stream object. These should return a string containing an appropriate description of the test in one line or extensively, respectively. This will allow you to customise how things look to some degree without having to create a new report object entirely.</p>
+<p>Finally it should be noted that if you happen to create new <code><a href="#PARACHUTE:RESULT">result</a></code> types that you might want to run using the default reports, you should add methods to <code><a href="#PARACHUTE:FORMAT-RESULT">format-result</a></code> that specialise on the keywords <code>:oneline</code> and <code>:extensive</code> for the type. These should return a string containing an appropriate description of the test in one line or extensively, respectively. This will allow you to customise how things look to some degree without having to create a new report object entirely.</p>
 </span>
         
       </article>
@@ -273,6 +296,21 @@ See COMPARISON
 See VALUE-RESULT</pre>
                   </article>
                 </li><li>
+                  <a name="PARACHUTE:FINISHING-RESULT"/>
+                  <article>
+                    <header class="class">
+                      <span class="type">class</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:FINISHING-RESULT" class="name">FINISHING-RESULT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">A result that only passes if its evaluation proceeds without escaping.
+
+See VALUE-RESULT</pre>
+                  </article>
+                </li><li>
                   <a name="PARACHUTE:INTERACTIVE"/>
                   <article>
                     <header class="class">
@@ -321,6 +359,7 @@ See RESULTS-WITH-STATUS</pre>
                     <pre class="docstring">A plain-text report that prints test results as they go by as well as a summary of the failures at the end.
 
 See REPORT
+See OUTPUT
 See REPORT-ON</pre>
                   </article>
                 </li><li>
@@ -412,6 +451,7 @@ use REMOVE-TEST.
 
 See NAME
 See HOME
+See DESCRIPTION
 See PARENT
 See CHILDREN
 See DEPENDENCIES
@@ -521,9 +561,10 @@ See COMPARISON-RESULT</pre>
                         <span class="arguments">(OBJECT)</span>
                       </code>
                     </header>
-                    <pre class="docstring">The description of what the result is about as a string or NIL.
+                    <pre class="docstring">The description of what the test/result is about as a string or NIL.
 
-See RESULT</pre>
+See RESULT
+See TEST</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:DURATION"/>
@@ -616,6 +657,23 @@ See WITH-FIXTURE
 See TEST</pre>
                   </article>
                 </li><li>
+                  <a name="PARACHUTE:OUTPUT"/>
+                  <article>
+                    <header class="accessor">
+                      <span class="type">accessor</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:OUTPUT" class="name">OUTPUT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(OBJECT)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">The stream that the PLAIN report outputs to during REPORT-ON and SUMMARIZE.
+
+See PLAIN
+See REPORT-ON
+See SUMMARIZE</pre>
+                  </article>
+                </li><li>
                   <a name="PARACHUTE:PARENT"/>
                   <article>
                     <header class="accessor">
@@ -644,7 +702,11 @@ See TEST</pre>
                         <span class="arguments">(OBJECT)</span>
                       </code>
                     </header>
-                    <pre class="docstring">The list of test designators that reference a dependant test.
+                    <pre class="docstring">The logical combination of test designators that reference a dependant test.
+
+DEPENDENCIES ::= (DEPENDENCY*) | (LOGOP DEPENDENCY*)
+LOGOP        ::= :OR | :AND | :NOT
+DEPENDENCY   ::= test-name | (home test-name) | DEPENDENCIES
 
 See DEPENDENCIES
 See TEST</pre>
@@ -906,12 +968,19 @@ See SUMMARIZE</pre>
                         <span class="arguments">(TEST)</span>
                       </code>
                     </header>
-                    <pre class="docstring">The list of dependant tests. 
+                    <pre class="docstring">The logical combination of dependant tests.
+
+DEPENDENCIES ::= (LOGOP DEPENDENCY*)
+LOGOP        ::= :OR | :AND | :NOT
+DEPENDENCY   ::= test-object | DEPENDENCIES
 
 If a dependency is referenced that does not exist, an error is signalled.
 Dependant tests must be evaluated before the test itself.
 
 See REFERENCED-DEPENDENCIES
+See CHECK-DEPENDENCY-COMBINATION
+See EVAL-DEPENDENCY-COMBINATION
+See RESOLVE-DEPENDENCY-COMBINATION
 See TEST</pre>
                   </article>
                 </li><li>
@@ -952,6 +1021,23 @@ See RESULT</pre>
 This simply tests by EQ against the EXPRESSION of each child within the result.
 
 See PARENT-RESULT</pre>
+                  </article>
+                </li><li>
+                  <a name="PARACHUTE:FORMAT-RESULT"/>
+                  <article>
+                    <header class="generic">
+                      <span class="type">generic</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:FORMAT-RESULT" class="name">FORMAT-RESULT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(RESULT TYPE)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">Formats the result into the requested representation as a string.
+
+The representation type can, by default, be either :ONELINE or :EXTENSIVE.
+
+See RESULT</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:HOME"/>
@@ -1063,7 +1149,12 @@ See TEST</pre>
                         <span class="arguments">(REPORT)</span>
                       </code>
                     </header>
-                    <pre class="docstring"/>
+                    <pre class="docstring">Should cause the report to produce some kind of summary.
+
+How this summary is presented and what is contained in it is up to
+the report itself.
+
+See REPORT.</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:TESTS-WITH-STATUS"/>
@@ -1143,7 +1234,7 @@ keyword arguments are always passed quoted.
 
 If you set a parent in the NAME, you cannot use the :PARENT karg and vice-
 versa. The following initargs are automatically always passed by DEFINE-TEST
-and should thus not appear as a karg: :NAME :HOME :TESTS :PARENT
+and should thus not appear as a karg: :NAME :TESTS :PARENT
 
 You can define child tests within the body of the test if they appear as
 &quot;toplevel&quot; forms. They will be taken out of the body forms and emitted
@@ -1157,9 +1248,13 @@ set as serial. This means that if you need to wrap multiple testers in any
 other form, the inner tests cannot be shuffled accordingly. However, you can
 use the WITH-SHUFFLING macro.
 
+Note that the dependencies of the test can be a combined by logic operators
+of :AND :OR and :NOT. See REFERENCED-DEPENDENCIES for the necessary structure.
+
 See TEST
 See FIND-TEST
-See REMOVE-TEST</pre>
+See REMOVE-TEST
+See REFERENCED-DEPENDENCIES</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:FAIL"/>
@@ -1186,6 +1281,19 @@ See REMOVE-TEST</pre>
                       </code>
                     </header>
                     <pre class="docstring">A tester that succeeds if the form returns NIL as the value.</pre>
+                  </article>
+                </li><li>
+                  <a name="PARACHUTE:FINISH"/>
+                  <article>
+                    <header class="macro">
+                      <span class="type">macro</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:FINISH" class="name">FINISH</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(&amp;REST ARGS)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">A tester that succeeds if the form returns without escaping.</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:IS"/>
