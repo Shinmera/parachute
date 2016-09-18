@@ -64,6 +64,7 @@
 (defvar *defined-suites* (make-hash-table :test 'eq))
 
 (defclass test-file (asdf:cl-source-file) ())
+(import 'test-file :asdf)
 
 (defmethod asdf:perform ((op asdf:compile-op) (c test-file)))
 
