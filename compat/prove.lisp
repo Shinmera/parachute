@@ -118,43 +118,43 @@
       args))
 
 (defmacro ok (test &optional description)
-  `(parachute:true ,test ,description))
+  `(parachute:true ,test "~a" ,description))
 
 (defmacro is (got expected &rest args)
   (multiple-value-bind (desc test) (parse-description-and-test args)
-    `(parachute:true (funcall ,test ,got ,expected) ,desc)))
+    `(parachute:true (funcall ,test ,got ,expected) "~a" ,desc)))
 
 (defmacro isnt (got expected &rest args)
   (multiple-value-bind (desc test) (parse-description-and-test args)
-    `(parachute:false (funcall ,test ,got ,expected) ,desc)))
+    `(parachute:false (funcall ,test ,got ,expected) "~a" ,desc)))
 
 (defmacro is-values (got expected &rest args)
   `(is (multiple-value-list ,got) ,expected ,@args))
 
 (defmacro is-print (got expected &optional desc)
-  `(parachute:is equal ,expected (capture-stdout ,got) ,desc))
+  `(parachute:is equal ,expected (capture-stdout ,got) "~a" ,desc))
 
 (defmacro is-condition (got condition &optional desc)
-  `(parachute:fail ,got ,(if (and (listp condition) (eq 'quote (first condition)))
-                             condition `',condition) ,desc))
+  `(parachute:fail ,got ,condition "~a" ,desc))
 
 (defmacro is-error (got condition &optional desc)
   `(is-condition ,got ,condition ,desc))
 
 (defmacro is-type (got expected &optional desc)
-  `(parachute:is typep ,expected ,got ,desc))
+  `(parachute:is typep ,expected ,got "~a" ,desc))
 
 (defmacro like (got regex &optional desc)
-  `(parachute:is cl-ppcre:scan ,regex ,got ,desc))
+  `(parachute:is cl-ppcre:scan ,regex ,got "~a" ,desc))
 
 (defmacro is-expand (got expected &optional desc)
-  `(parachute:is equal ',expected (macroexpand-1 ',got) ,desc))
+  `(parachute:is equal ',expected (macroexpand-1 ',got) "~a" ,desc))
 
 (defun diag (desc)
-  `(write-line desc (parachute:output parachute:*context*)))
+  (format (parachute:output parachute:*context*) "~& ==> ~a~%" desc))
 
 (defun skip (how-many why &rest format-args)
-  (error "Don't know how to solve this pickle yet."))
+  (diag (format NIL "Skipping the next ~a tests: ~?" how-many why format-args))
+  (setf (to-skip parachute:*context*) how-many))
 
 (defun pass (desc)
   `(parachute:eval-in-context
@@ -191,7 +191,7 @@
   (parachute:test name :output *test-result-output*))
 
 (defun run-test-package (package)
-  (parachute:test *package* :output *test-result-output*))
+  (parachute:test package :output *test-result-output*))
 
 (defun run-test-all ()
   (loop for package being the hash-keys of parachute::*test-indexes*
@@ -206,13 +206,21 @@
 
 ;; That'll do, pig.
 (defclass suite (parachute:plain)
-  ())
+  ((to-skip :initarg :to-skip :initform 0 :accessor to-skip)))
+
+(defmethod parachute:eval-in-context ((report suite) (result parachute:result))
+  (cond ((<= (to-skip report) 0)
+         (call-next-method))
+        (T
+         (setf (parachute:status result) :skipped)
+         (decf (to-skip report)))))
 
 ;; That'll do.
 (defclass package-suite (suite)
   ())
 
 (defun slow-threshold (&optional new-threshold)
+  (declare (ignore new-threshold))
   ;; We don't really implement this.
   *default-slow-threshold*)
 
@@ -235,7 +243,8 @@
 (defun plan (n)
   ;; Still not sure what the number is even useful for.
   (declare (ignore n))
-  (setf parachute:*context* (current-suite)))
+  (setf parachute:*context* (current-suite))
+  (reset-suite parachute:*context*))
 
 (defun finalize ()
   (parachute:summarize (current-suite))
