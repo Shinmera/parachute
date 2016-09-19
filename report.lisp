@@ -115,7 +115,7 @@
              Passed:  ~4d~%~
              Failed:  ~4d~%~
              Skipped: ~4d~%"
-            (length (tests-with-status :passed report))
+            (length (filter-test-results (results-with-status :passed report)))
             (length (filter-test-results failures))
             (length (results-with-status :skipped report)))
     (when failures
