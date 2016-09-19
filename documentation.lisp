@@ -311,11 +311,19 @@ See GEQ")
     "A result that does not directly perform a test, but rather serves as an aggregate for multiple tests.
 
 This result will set its status to :FAILED automatically if it notices that
-after evaluation one or more of its children have the status :FAILED.
+after evaluation one or more of its child results have the status :FAILED.
 
+See RESULTS
 See RESULT
 See FIND-CHILD-RESULT
-See RESULTS-WITH-STATUS")
+See RESULTS-WITH-STATUS
+See ADD-RESULT")
+
+  (function results
+    "The vector of child results within the parent.
+
+See PARENT-RESULT
+See ADD-CHILD")
 
   (function find-child-result
     "Attempts to find the result object associated with the given test.
@@ -327,6 +335,12 @@ See PARENT-RESULT")
   (function results-with-status
     "Returns a list of results that are a child of the result and have the requested status.
 
+See PARENT-RESULT")
+
+  (function add-result
+    "Adds the child to the parent's results if it is not a part already.
+
+See RESULTS
 See PARENT-RESULT")
 
   (type test-result

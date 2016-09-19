@@ -51,7 +51,7 @@
    #:comparison
    #:comparison-geq
    #:parent-result
-   #:children
+   #:results
    #:find-child-result
    #:results-with-status
    #:test-result)

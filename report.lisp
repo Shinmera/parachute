@@ -35,7 +35,7 @@
 (defmethod print-object ((report report) stream)
   (print-unreadable-object (report stream :type T)
     (format stream "~a results"
-            (length (children report)))))
+            (length (results report)))))
 
 (defmethod tests-with-status (status (report report))
   (delete-if-not (lambda (a) (typep a 'test))

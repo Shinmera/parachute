@@ -28,10 +28,8 @@
    :description NIL))
 
 (defmethod initialize-instance :after ((result result) &key)
-  (when (and *parent* (not (find result (children *parent*))))
-    (vector-push-extend result (children *parent*)))
-  (when (and *context* (not (find result (children *context*))))
-    (vector-push-extend result (children *context*))))
+  (when *parent* (add-result result *parent*))
+  (when *context* (add-result result *context*)))
 
 (defmethod print-object ((result result) stream)
   (print-unreadable-object (result stream :type T)
@@ -111,7 +109,7 @@
       (setf (status result) :failed)))
 
 (defclass parent-result (result)
-  ((children :initform (make-array 0 :adjustable T :fill-pointer T) :accessor children)))
+  ((results :initform (make-array 0 :adjustable T :fill-pointer T) :accessor results)))
 
 (defmethod result-for-testable ((test test) (result parent-result))
   (or (find-child-result test result)
@@ -122,17 +120,21 @@
     (call-next-method)))
 
 (defmethod eval-in-context :after (context (result parent-result))
-  (when (loop for child across (children result)
+  (when (loop for child across (results result)
               thereis (eql :failed (status child)))
     (setf (status result) :failed)))
 
 (defmethod find-child-result (test (result parent-result))
-  (find test (children result) :key #'expression :test #'eq))
+  (find test (results result) :key #'expression :test #'eq))
 
 (defmethod results-with-status (status (result parent-result))
-  (loop for result across (children result)
+  (loop for result across (results result)
         when (eql status (status result))
         collect result))
+
+(defmethod add-result ((result result) (parent parent-result))
+  (unless (find result (results parent))
+    (vector-push-extend result (results parent))))
 
 (defclass test-result (parent-result)
   ())
@@ -144,7 +146,7 @@
 
 (defmethod format-result ((result test-result) (type (eql :extensive)))
   (format NIL "~4d/~4d tests failed in ~a~@[~%~a~]"
-          (length (results-with-status :failed result)) (length (children result))
+          (length (results-with-status :failed result)) (length (results result))
           (format-result result :oneline)
           (description result)))
 
