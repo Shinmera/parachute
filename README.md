@@ -135,7 +135,7 @@ Usually the context is a report object, but other situations might also be conce
 
 The evaluation of results is decoupled from the context and reports in the sense that their behaviour does not, by default, depend on it. At the most basic, the `result` class defines a single `:around` method that takes care of recording the `duration` of the test evaluation, setting a default `status` after finishing without errors, and skipping evaluation if the status is already set to something other than `:unknown`.
 
-Next we have a result object that is interesting for anything that actually produces direct test results-- `value-result`. If the `value` slot thereof is set to a `function` object, the function is called upon evaluation of the result, and the value slot's value is then replaced with whatever the function call returns.
+Next we have a result object that is interesting for anything that actually produces direct test results-- `value-result`. Upon evaluation, if the `value` slot is not yet bound, it calls its `body` function and stores the return value thereof in the `value` slot.
 
 However, the result type that is actually used for all standard test forms is the `comparison-result`. This also takes a comparator function and an expected result to compare against upon completion of the test. If the results match, then the test status is set to `:passed`, otherwise to `:failed`.
 

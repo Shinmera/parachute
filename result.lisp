@@ -56,12 +56,16 @@
       (setf (status result) :passed))))
 
 (defclass value-result (result)
-  ((value :initarg :value :accessor value)))
+  ((value :initarg :value :accessor value)
+   (body :initarg :body :accessor body))
+  (:default-initargs
+   :body (error "BODY required.")))
 
 (defmethod eval-in-context (context (result value-result))
-  (setf (value result) (typecase (value result)
-                         (function (funcall (value result)))
-                         (T (value result)))))
+  (unless (slot-boundp result 'value)
+    (setf (value result) (typecase (body result)
+                           (function (funcall (body result)))
+                           (T (body result))))))
 
 (defclass finishing-result (value-result)
   ())

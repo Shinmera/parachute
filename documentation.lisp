@@ -251,20 +251,24 @@ See RESULT")
   (type value-result
     "A result that carries some kind of test result value.
 
-Typically the value slot is set to a function object, which is then
-called on EVAL-IN-CONTEXT and whose return value is then stored in the
-value slot in place of the function.
+Typically the VALUE slot is only set once the result is evaluated. Note that
+if the VALUE slot is bound at the time that the result is evaluated, the
+BODY will not be run.
 
+See BODY
 See VALUE
 See RESULT")
 
+  (function body
+    "The function that will be called to evaluate the result and obtain a value.
+
+See VALUE
+See VALUE-RESULT")
+
   (function value
-    "The value of the result object.
+    "The value of the result object that is obtained by running its body.
 
-Note that it is not possible to determine whether the value-result object
-has been run based on this value. It may be a function object, which will
-be interpreted as having to be called on EVAL-IN-CONTEXT.
-
+See BODY
 See VALUE-RESULT")
 
   (type finishing-result

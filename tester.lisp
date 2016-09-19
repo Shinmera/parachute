@@ -12,7 +12,7 @@
     (make-instance 'comparison-result
                    :expression '(true ,form)
                    :value-form ',form
-                   :value (lambda () ,form)
+                   :body (lambda () ,form)
                    :expected 'T
                    :comparison 'geq
                    ,@(when description
@@ -24,7 +24,7 @@
     (make-instance 'comparison-result
                    :expression '(false ,form)
                    :value-form ',form
-                   :value (lambda () ,form)
+                   :body (lambda () ,form)
                    :expected 'NIL
                    :comparison 'geq
                    ,@(when description
@@ -36,7 +36,7 @@
     (make-instance 'comparison-result
                    :expression '(is ,comp ,expected ,form)
                    :value-form ',form
-                   :value (lambda () ,form)
+                   :body (lambda () ,form)
                    :expected ,expected
                    :comparison ,(maybe-quote comp)
                    ,@(when description
@@ -48,7 +48,7 @@
     (make-instance 'comparison-result
                    :expression '(is ,comp ,expected ,form)
                    :value-form ',form
-                   :value (lambda () ,form)
+                   :body (lambda () ,form)
                    :expected ,expected
                    :comparison ,(maybe-quote comp)
                    :comparison-geq NIL
@@ -61,7 +61,7 @@
     (make-instance 'comparison-result
                    :expression '(fail ,form ,type)
                    :value-form '(capture-error ,form)
-                   :value (lambda () (capture-error ,form ,(maybe-unquote type)))
+                   :body (lambda () (capture-error ,form ,(maybe-unquote type)))
                    :expected ',(maybe-unquote type)
                    :comparison 'typep
                    ,@(when description
@@ -73,7 +73,7 @@
     (make-instance 'comparison-result
                    :expression '(of-type ,type ,form)
                    :value-form ',form
-                   :value (lambda () ,form)
+                   :body (lambda () ,form)
                    :expected ',(maybe-unquote type)
                    :comparison 'typep
                    ,@(when description
@@ -85,6 +85,6 @@
     (make-instance 'finishing-result
                    :expression '(finish ,form)
                    :value-form '(complete ,form)
-                   :value (lambda () ,form)
+                   :body (lambda () ,form)
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
