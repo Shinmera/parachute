@@ -53,3 +53,11 @@
 (define-test finish
   (finish T)
   (finish (error "NOPE")))
+
+(define-test override
+  (true T)
+  (skip "Not ready yet"
+    (false T)
+    (is = 5 6))
+  (with-forced-status (:failed)
+    (false NIL)))

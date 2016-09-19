@@ -366,7 +366,32 @@ evaluation.
 
 See PARENT-RESULT
 See EVAL-DEPENDENCY-COMBINATION
-See CHECK-DEPENDENCY-COMBINATION"))
+See CHECK-DEPENDENCY-COMBINATION")
+
+  (variable *real-context*
+    "Captures the context before the controlling-result has to take over.
+
+See CONTROLLING-RESULT")
+
+  (type controlling-result
+    "A result that will force a status upon the tests run in its body without performing the tests for real.
+
+This works through a hack, at this point. When the controlling-result
+is evaluated, it binds *CONTEXT* to itself and *REAL-CONTEXT* to the
+actual context. It then calls the BODY.
+
+When a result is evaluated within its body, it then ADD-RESULTs that
+to the real context. If it is a value-result, the body function thereof
+is replaced by a function that changes the result's status to whatever
+CHILD-STATUS is. It then evaluates the value-result in the real context.
+Once that returns, the value-result's value slot is made unbound again.
+
+See CHILD-STATUS")
+
+  (function child-status
+    "The status that the children of a controlling-result should be set to.
+
+See CONTROLLING-RESULT"))
 
 ;; test.lisp
 (docs:define-docs
@@ -651,7 +676,13 @@ See FIND-CHILD-RESULT"))
     "A tester that succeeds if the form returns a value that is of the requested type.")
 
   (function finish
-    "A tester that succeeds if the form returns without escaping."))
+    "A tester that succeeds if the form returns without escaping.")
+
+  (function with-forced-status
+    "Forces the requested status upon the tests in the body without evaluating any value-results.")
+
+  (function skip
+    "Skips the tests in the body by avoiding their evaluation and marking their status as :SKIPPED."))
 
 ;; toolkit.lisp
 (docs:define-docs

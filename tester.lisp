@@ -88,3 +88,17 @@
                    :body (lambda () ,form)
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
+
+(defmacro with-forced-status ((status &optional description &rest format-args) &body tests)
+  `(eval-in-context
+    *context*
+    (make-instance 'controlling-result
+                   :expression ,status
+                   :child-status ,status
+                   :body (lambda () ,@tests)
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))))
+
+(defmacro skip (desc &body tests)
+  `(with-forced-status (:skipped ,@(if (listp desc) desc (list desc)))
+     ,@tests))

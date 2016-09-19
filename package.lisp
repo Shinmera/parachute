@@ -82,7 +82,9 @@
    #:isnt
    #:fail
    #:of-type
-   #:finish)
+   #:finish
+   #:with-forced-status
+   #:skip)
   ;; toolkit.lisp
   (:export
    #:with-shuffling))

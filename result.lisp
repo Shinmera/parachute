@@ -186,3 +186,31 @@
                     (eval-in-context context subresult))
                    (T
                     (eval-in-context context subresult))))))
+
+;; This is a hack, oh boy.
+(defvar *real-context* NIL)
+
+(defclass controlling-result (parent-result)
+  ((child-status :initarg :child-status :accessor child-status)
+   (body :initarg :body :accessor body)))
+
+(defmethod eval-in-context (context (result controlling-result))
+  (let ((*real-context* context)
+        (*context* result))
+    (funcall (body result))))
+
+(defmethod eval-in-context :after (context (result controlling-result))
+  (setf (status result) :passed))
+
+(defmethod eval-in-context :before ((context controlling-result) (result result))
+  (add-result result *real-context*))
+
+(defmethod eval-in-context ((context controlling-result) (result value-result))
+  (setf (body result) (lambda () (setf (status result) (child-status context))))
+  (eval-in-context *real-context* result)
+  (slot-makunbound result 'value))
+
+(defmethod format-result ((result controlling-result) (type (eql :oneline)))
+  (format NIL "~a~@[: ~a~]"
+          (case (child-status result) (:skipped :skip) (:failed :fail) (:passed :pass) (T (child-status result)))
+          (description result)))

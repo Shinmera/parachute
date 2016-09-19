@@ -50,6 +50,13 @@ Sometimes it is then useful to skip children if you know that they are either fa
     (define-test suite
       :skip (test-a))
 
+If you need to skip individual test forms rather than a whole test, you can use the `skip` form.
+
+    (define-test stuff
+      (true :pass)
+      (skip "Not ready yet"
+        (is = 5 (some-unimplemented-function 10))))
+
 In order to ensure that there is no accidental sequential dependency between test forms or children, you can use the `:serial NIL` option, which will shuffle the test forms and children each time before evaluating them.
 
     (define-test random
