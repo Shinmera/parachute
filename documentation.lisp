@@ -669,6 +669,9 @@ See FIND-CHILD-RESULT"))
   (function is
     "A tester that succeeds if the value the form returns is equal to the expected value under the given comparator.")
 
+  (function isnt
+    "A tester that succeeds if the value the form returns is not equal to the expected value under the given comparator.")
+
   (function fail
     "A tester that succeeds if the form signals an error of the requested type, defaulting to ERROR.")
 
