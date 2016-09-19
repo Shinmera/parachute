@@ -67,15 +67,32 @@ In order to ensure that there is no accidental sequential dependency between tes
       (true 4)
       (true 5))
 
+If you need to wrap your test forms in some kind of environment, then the shuffling won't work automatically. However, you can fix this by wrapping the forms in a `with-shuffling` form.
+
+    (define-test random-2
+      (let ((a 0))
+        (with-shuffling
+          (is = 1 (incf a))
+          (is = 2 (incf a))
+          (is = 3 (incf a)))))
+
 In case your code will cause changes to the global environment, you probably will want to fix it in place to make sure they are restored to their former values after the test completes. Parachute allows you to automatically fix variables, functions, and macros in place.
 
     (define-test float-format
       :fix (*read-default-float-format*)
-      (of-type single-float 0.5)
+      (of-type single-float (read-from-string "0.5"))
       (setf *read-default-float-format* 'double-float)
-      (of-type double-float 0.5))
+      (of-type double-float (read-from-string "0.5")))
 
-You can also tell it to hold all the symbols accessible to a certain package in place by giving it a package designator as a keyword, gensym, or string. If you have a user-defined binding to a symbol you can also make the fixture system aware of it.
+You can also tell it to hold all the symbols accessible to a certain package in place by giving it a package designator as a keyword, gensym, or string. Using `with-fixtures`, this can also be done locally. It expects an evaluated list of fixtures.
+
+    (define-test float-format2
+      (with-fixtures '(*read-default-float-format*)
+        (setf *read-default-float-format* 'double-float)
+        (of-type double-float (read-from-string "0.5")))
+      (of-type single-float (read-from-string "0.5")))
+
+If you have a user-defined binding to a symbol you can also make the fixture system aware of it so that it'll capture the bindings automatically.
 
     (define-fixture-capture my-binding (symbol)
       (when (my-binding-bound-p symbol)
@@ -83,6 +100,12 @@ You can also tell it to hold all the symbols accessible to a certain package in 
 
     (define-fixture-restore my-binding (symbol value)
       (setf (my-binding-value symbol) value))
+
+Sometimes the compiler will already complain for some tests that you expect to fail, for instance when the type inference is too good. In that case you can force Parachute to only compile the test forms when the test is evaluated. This is also useful when you're continuously working on macros and the like and don't want to recompile the test all the time. Parachute does not do this by default in order to give you useful compiler feedback in case you mess up writing your tests, and in order to avoid having to pay the time to invoke the compiler when it usually isn't necessary. Note that the compilation of the forms will be factored into your timing results.
+
+    (define-test compare-numbers
+      :compile-at :execute
+      (fail (= :5 5)))
 
 Finally, Parachute also allows you to enforce timing constraints on tests to make sure that they complete within a specified limit.
 

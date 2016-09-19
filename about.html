@@ -32,7 +32,7 @@
 
 <h2>How To</h2>
 
-<p>In Parachute, things are organised as a bunch of named tests within a package. Each test can contain a bunch of test forms that make up its body. By default <code><a href="#PARACHUTE:TRUE">true</a></code>, <code><a href="#PARACHUTE:FALSE">false</a></code>, <code><a href="#PARACHUTE:FAIL">fail</a></code>, <code><a href="#PARACHUTE:IS">is</a></code>, and <code><a href="#PARACHUTE:OF-TYPE">of-type</a></code> are provided as test forms.</p>
+<p>In Parachute, things are organised as a bunch of named tests within a package. Each test can contain a bunch of test forms that make up its body. By default <code><a href="#PARACHUTE:TRUE">true</a></code>, <code><a href="#PARACHUTE:FALSE">false</a></code>, <code><a href="#PARACHUTE:FAIL">fail</a></code>, <code><a href="#PARACHUTE:IS">is</a></code>, <code><a href="#PARACHUTE:ISNT">isnt</a></code>, <code><a href="#PARACHUTE:OF-TYPE">of-type</a></code>, and <code><a href="#PARACHUTE:FINISH">finish</a></code> are provided as test forms.</p>
 
 <pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> numbers
   (<a href="#PARACHUTE:OF-TYPE">of-type</a> integer 5)
@@ -86,6 +86,14 @@
   :skip (test-a))
 </code></pre>
 
+<p>If you need to skip individual test forms rather than a whole test, you can use the <code><a href="#PARACHUTE:SKIP">skip</a></code> form.</p>
+
+<pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> stuff
+  (<a href="#PARACHUTE:TRUE">true</a> :pass)
+  (<a href="#PARACHUTE:SKIP">skip</a> &quot;Not ready yet&quot;
+    (<a href="#PARACHUTE:IS">is</a> = 5 (some-unimplemented-function 10))))
+</code></pre>
+
 <p>In order to ensure that there is no accidental sequential dependency between test forms or children, you can use the <code>:serial NIL</code> option, which will shuffle the test forms and children each time before evaluating them.</p>
 
 <pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> random
@@ -97,16 +105,35 @@
   (<a href="#PARACHUTE:TRUE">true</a> 5))
 </code></pre>
 
+<p>If you need to wrap your test forms in some kind of environment, then the shuffling won't work automatically. However, you can fix this by wrapping the forms in a <code><a href="#PARACHUTE:WITH-SHUFFLING">with-shuffling</a></code> form.</p>
+
+<pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> random-2
+  (<a href="http://l1sp.org/cl/let">let</a> ((a 0))
+    (<a href="#PARACHUTE:WITH-SHUFFLING">with-shuffling</a>
+      (<a href="#PARACHUTE:IS">is</a> = 1 (<a href="http://l1sp.org/cl/incf">incf</a> a))
+      (<a href="#PARACHUTE:IS">is</a> = 2 (<a href="http://l1sp.org/cl/incf">incf</a> a))
+      (<a href="#PARACHUTE:IS">is</a> = 3 (<a href="http://l1sp.org/cl/incf">incf</a> a)))))
+</code></pre>
+
 <p>In case your code will cause changes to the global environment, you probably will want to fix it in place to make sure they are restored to their former values after the test completes. Parachute allows you to automatically fix variables, functions, and macros in place.</p>
 
 <pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> float-format
   :fix (<a href="http://l1sp.org/cl/*read-default-float-format*">*read-default-float-format*</a>)
-  (<a href="#PARACHUTE:OF-TYPE">of-type</a> single-float 0.5)
+  (<a href="#PARACHUTE:OF-TYPE">of-type</a> single-float (<a href="http://l1sp.org/cl/read-from-string">read-from-string</a> &quot;0.5&quot;))
   (<a href="http://l1sp.org/cl/setf">setf</a> *read-default-float-format* 'double-float)
-  (<a href="#PARACHUTE:OF-TYPE">of-type</a> double-float 0.5))
+  (<a href="#PARACHUTE:OF-TYPE">of-type</a> double-float (<a href="http://l1sp.org/cl/read-from-string">read-from-string</a> &quot;0.5&quot;)))
 </code></pre>
 
-<p>You can also tell it to hold all the symbols accessible to a certain package in place by giving it a package designator as a keyword, gensym, or string. If you have a user-defined binding to a symbol you can also make the fixture system aware of it.</p>
+<p>You can also tell it to hold all the symbols accessible to a certain package in place by giving it a package designator as a keyword, gensym, or string. Using <code><a href="#PARACHUTE:WITH-FIXTURES">with-fixtures</a></code>, this can also be done locally. It expects an evaluated list of fixtures.</p>
+
+<pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> float-format2
+  (<a href="#PARACHUTE:WITH-FIXTURES">with-fixtures</a> '(<a href="http://l1sp.org/cl/*read-default-float-format*">*read-default-float-format*</a>)
+    (<a href="http://l1sp.org/cl/setf">setf</a> *read-default-float-format* 'double-float)
+    (<a href="#PARACHUTE:OF-TYPE">of-type</a> double-float (<a href="http://l1sp.org/cl/read-from-string">read-from-string</a> &quot;0.5&quot;)))
+  (<a href="#PARACHUTE:OF-TYPE">of-type</a> single-float (<a href="http://l1sp.org/cl/read-from-string">read-from-string</a> &quot;0.5&quot;)))
+</code></pre>
+
+<p>If you have a user-defined binding to a symbol you can also make the fixture system aware of it so that it'll capture the bindings automatically.</p>
 
 <pre><code>(<a href="#PARACHUTE:DEFINE-FIXTURE-CAPTURE">define-fixture-capture</a> my-binding (<a href="http://l1sp.org/cl/symbol">symbol</a>)
   (<a href="http://l1sp.org/cl/when">when</a> (my-binding-bound-p symbol)
@@ -114,6 +141,13 @@
 
 (<a href="#PARACHUTE:DEFINE-FIXTURE-RESTORE">define-fixture-restore</a> my-binding (<a href="http://l1sp.org/cl/symbol">symbol</a> value)
   (<a href="http://l1sp.org/cl/setf">setf</a> (my-binding-value symbol) value))
+</code></pre>
+
+<p>Sometimes the compiler will already complain for some tests that you expect to fail, for instance when the type inference is too good. In that case you can force Parachute to only compile the test forms when the test is evaluated. This is also useful when you're continuously working on macros and the like and don't want to recompile the test all the time. Parachute does not do this by default in order to give you useful compiler feedback in case you mess up writing your tests, and in order to avoid having to pay the time to invoke the compiler when it usually isn't necessary. Note that the compilation of the forms will be factored into your timing results.</p>
+
+<pre><code>(<a href="#PARACHUTE:DEFINE-TEST">define-test</a> compare-numbers
+  :compile-at :execute
+  (<a href="#PARACHUTE:FAIL">fail</a> (<a href="http://l1sp.org/cl/=">=</a> :5 5)))
 </code></pre>
 
 <p>Finally, Parachute also allows you to enforce timing constraints on tests to make sure that they complete within a specified limit.</p>
@@ -184,7 +218,7 @@
 
 <p>The evaluation of results is decoupled from the context and reports in the sense that their behaviour does not, by default, depend on it. At the most basic, the <code><a href="#PARACHUTE:RESULT">result</a></code> class defines a single <code>:around</code> method that takes care of recording the <code><a href="#PARACHUTE:DURATION">duration</a></code> of the test evaluation, setting a default <code><a href="#PARACHUTE:STATUS">status</a></code> after finishing without errors, and skipping evaluation if the status is already set to something other than <code>:unknown</code>.</p>
 
-<p>Next we have a result object that is interesting for anything that actually produces direct test results-- <code><a href="#PARACHUTE:VALUE-RESULT">value-result</a></code>. If the <code><a href="#PARACHUTE:VALUE">value</a></code> slot thereof is set to a <code><a href="http://l1sp.org/cl/function">function</a></code> object, the function is called upon evaluation of the result, and the value slot's value is then replaced with whatever the function call returns.</p>
+<p>Next we have a result object that is interesting for anything that actually produces direct test results-- <code><a href="#PARACHUTE:VALUE-RESULT">value-result</a></code>. Upon evaluation, if the <code><a href="#PARACHUTE:VALUE">value</a></code> slot is not yet bound, it calls its <code>body</code> function and stores the return value thereof in the <code><a href="#PARACHUTE:VALUE">value</a></code> slot.</p>
 
 <p>However, the result type that is actually used for all standard test forms is the <code><a href="#PARACHUTE:COMPARISON-RESULT">comparison-result</a></code>. This also takes a comparator function and an expected result to compare against upon completion of the test. If the results match, then the test status is set to <code>:passed</code>, otherwise to <code>:failed</code>.</p>
 
@@ -294,6 +328,7 @@ of its value against an expected, preset value.
 See VALUE-FORM
 See EXPECTED
 See COMPARISON
+See COMPARISON-GEQ
 See VALUE-RESULT</pre>
                   </article>
                 </li><li>
@@ -340,11 +375,13 @@ See REPORT</pre>
                     <pre class="docstring">A result that does not directly perform a test, but rather serves as an aggregate for multiple tests.
 
 This result will set its status to :FAILED automatically if it notices that
-after evaluation one or more of its children have the status :FAILED.
+after evaluation one or more of its child results have the status :FAILED.
 
+See RESULTS
 See RESULT
 See FIND-CHILD-RESULT
-See RESULTS-WITH-STATUS</pre>
+See RESULTS-WITH-STATUS
+See ADD-RESULT</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:PLAIN"/>
@@ -511,10 +548,11 @@ See CHECK-DEPENDENCY-COMBINATION</pre>
                     </header>
                     <pre class="docstring">A result that carries some kind of test result value.
 
-Typically the value slot is set to a function object, which is then
-called on EVAL-IN-CONTEXT and whose return value is then stored in the
-value slot in place of the function.
+Typically the VALUE slot is only set once the result is evaluated. Note that
+if the VALUE slot is bound at the time that the result is evaluated, the
+BODY will not be run.
 
+See BODY
 See VALUE
 See RESULT</pre>
                   </article>
@@ -551,6 +589,24 @@ See TEST</pre>
                     <pre class="docstring">The comparison function designator that compares the expected and actual values of the test.
 
 See COMPARISON-RESULT</pre>
+                  </article>
+                </li><li>
+                  <a name="PARACHUTE:COMPARISON-GEQ"/>
+                  <article>
+                    <header class="accessor">
+                      <span class="type">accessor</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:COMPARISON-GEQ" class="name">COMPARISON-GEQ</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(OBJECT)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">The value to which the comparison result must be GEQ to.
+
+Defaults to T.
+
+See COMPARISON-RESULT
+See GEQ</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:DESCRIPTION"/>
@@ -631,6 +687,10 @@ See RESULT</pre>
 
 If the name is a symbol, the package defaults to the symbol's package.
 If the name is a string, the package defaults to *PACKAGE*.
+If no explicit package has been given and no test has been found, the
+search is automatically retried with the package set to *PACKAGE*. This
+should avoid confusion in the case of imported symbols and tests defined
+under the local package.
 
 This function can also be used as a place in order to register a test.
 When a test is set, the preexisting test if any is first removed by
@@ -730,6 +790,22 @@ See SKIPPED-CHILDREN
 See TEST</pre>
                   </article>
                 </li><li>
+                  <a name="PARACHUTE:RESULTS"/>
+                  <article>
+                    <header class="accessor">
+                      <span class="type">accessor</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:RESULTS" class="name">RESULTS</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(OBJECT)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">The vector of child results within the parent.
+
+See PARENT-RESULT
+See ADD-CHILD</pre>
+                  </article>
+                </li><li>
                   <a name="PARACHUTE:SERIAL"/>
                   <article>
                     <header class="accessor">
@@ -816,12 +892,9 @@ See TEST</pre>
                         <span class="arguments">(OBJECT)</span>
                       </code>
                     </header>
-                    <pre class="docstring">The value of the result object.
+                    <pre class="docstring">The value of the result object that is obtained by running its body.
 
-Note that it is not possible to determine whether the value-result object
-has been run based on this value. It may be a function object, which will
-be interpreted as having to be called on EVAL-IN-CONTEXT.
-
+See BODY
 See VALUE-RESULT</pre>
                   </article>
                 </li><li>
@@ -1265,6 +1338,12 @@ set as serial. This means that if you need to wrap multiple testers in any
 other form, the inner tests cannot be shuffled accordingly. However, you can
 use the WITH-SHUFFLING macro.
 
+The karg :COMPILE-AT directs whether each test form should be compiled at
+definition time (default, value :COMPILE-TIME) or at test evaluation time
+(value :EXECUTE). The latter is achieved by, instead of a straight-up LAMBDA
+for each test form, it wraps it in a LAMBDA that calls COMPILE on the source
+form.
+
 Note that the dependencies of the test can be a combined by logic operators
 of :AND :OR and :NOT. See REFERENCED-DEPENDENCIES for the necessary structure.
 
@@ -1326,6 +1405,19 @@ See REFERENCED-DEPENDENCIES</pre>
                     <pre class="docstring">A tester that succeeds if the value the form returns is equal to the expected value under the given comparator.</pre>
                   </article>
                 </li><li>
+                  <a name="PARACHUTE:ISNT"/>
+                  <article>
+                    <header class="macro">
+                      <span class="type">macro</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:ISNT" class="name">ISNT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(&amp;REST ARGS)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring"/>
+                  </article>
+                </li><li>
                   <a name="PARACHUTE:OF-TYPE"/>
                   <article>
                     <header class="macro">
@@ -1337,6 +1429,19 @@ See REFERENCED-DEPENDENCIES</pre>
                       </code>
                     </header>
                     <pre class="docstring">A tester that succeeds if the form returns a value that is of the requested type.</pre>
+                  </article>
+                </li><li>
+                  <a name="PARACHUTE:SKIP"/>
+                  <article>
+                    <header class="macro">
+                      <span class="type">macro</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:SKIP" class="name">SKIP</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(&amp;REST ARGS)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">Skips the tests in the body by avoiding their evaluation and marking their status as :SKIPPED.</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:TRUE"/>
@@ -1365,6 +1470,19 @@ See REFERENCED-DEPENDENCIES</pre>
                     <pre class="docstring">Shorthand macro to evaluate the body with the fixtures saved away.
 
 See CALL-WITH-FIXTURES</pre>
+                  </article>
+                </li><li>
+                  <a name="PARACHUTE:WITH-FORCED-STATUS"/>
+                  <article>
+                    <header class="macro">
+                      <span class="type">macro</span>
+                      <code>
+                        <h4><a href="#PARACHUTE:WITH-FORCED-STATUS" class="name">WITH-FORCED-STATUS</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(&amp;REST ARGS)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">Forces the requested status upon the tests in the body without evaluating any value-results.</pre>
                   </article>
                 </li><li>
                   <a name="PARACHUTE:WITH-SHUFFLING"/>
