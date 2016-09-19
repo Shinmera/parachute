@@ -39,7 +39,7 @@
 
 (defmethod tests-with-status (status (report report))
   (delete-if-not (lambda (a) (typep a 'test))
-                 (mapcan #'expression (results-with-status status report))))
+                 (mapcar #'expression (results-with-status status report))))
 
 (defmethod summarize ((report report))
   report)
@@ -115,7 +115,7 @@
              Passed:  ~4d~%~
              Failed:  ~4d~%~
              Skipped: ~4d~%"
-            (length (filter-test-results (results-with-status :passed report)))
+            (length (tests-with-status :passed report))
             (length (filter-test-results failures))
             (length (results-with-status :skipped report)))
     (when failures
