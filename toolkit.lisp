@@ -89,18 +89,9 @@
 (defun maybe-unquote (expression)
   (typecase expression
     (cons
-     ;; We assume that this is a form that'll produce an unquoted value
-     ;; either by being a direct quote or by being quasiquoted in some
-     ;; implementation-defined manner. Either way, evaluating it should
-     ;; yield our value. Naturally this will fail if it needs to reference
-     ;; lexical variables.
-     (handler-case (eval expression)
-       (error (err)
-         (warn "Failed to unquote ~s. You probably have lexical variables that can't be resolved.~%~
-                 The actual error said: ~a~
-                 Continuing with the verbatim expression."
-               expression err)
-         expression)))
+     (if (eql (first expression) 'quote)
+         (second expression)
+         expression))
     (T expression)))
 
 (defun call-compile (form)
