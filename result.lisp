@@ -81,16 +81,17 @@
       (setf (status result) :failed))))
 
 (defmethod format-result ((result finishing-result) (type (eql :extensive)))
-  (let ((*print-right-margin* 600))
-    (format NIL "The test form   ~a~%"
-            (print-oneline (expression result) NIL))
-    (cond ((not (slot-boundp result 'value))
-           (format NIL "exited with an unknown cause."))
-          ((not (value result))
-           (format NIL "finished without issue."))
-          (T
-           (format NIL "exited by       ~a" (print-oneline (value result) NIL))))
-    (format NIL "~@[~&~a~]" (description result))))
+  (with-output-to-string (out)
+    (let ((*print-right-margin* 600))
+      (format out "The test form   ~a~%"
+              (print-oneline (expression result) NIL))
+      (cond ((not (slot-boundp result 'value))
+             (format out "exited with an unknown cause."))
+            ((not (value result))
+             (format out "finished without issue."))
+            (T
+             (format out "exited by       ~a" (print-oneline (value result) NIL))))
+      (format out "~@[~&~a~]" (description result)))))
 
 (defclass comparison-result (value-result)
   ((value-form :initarg :value-form :accessor value-form)
