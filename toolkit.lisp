@@ -31,35 +31,37 @@
   #-sbcl (eql (find-package :cl) package))
 
 (defun print-oneline (thing &optional (output T))
-  (typecase output
-    ((eql T)   (print-oneline thing *standard-output*))
-    ((eql NIL) (with-output-to-string (o)
-                 (print-oneline thing o)))
-    (stream
-     (typecase thing
-       (null (format output "()"))
-       (cons
-        (cond ((eql 'quote (first thing))
-               (format output "'")
-               (print-oneline (second thing) output))
-              (T
-               (format output "(")
-               (loop for (car . cdr) on thing
-                     do (print-oneline car output)
-                        (typecase cdr
-                          (null)
-                          (cons (format output " "))
-                          (T (format output " . ")
-                           (print-oneline cdr output))))
-               (format output ")"))))
-       (string (prin1 thing output))
-       (vector (format output "#(")
-        (loop for i from 0 below (length thing)
-              do (print-oneline (aref thing i))
-                 (when (< i (1- (length thing)))
-                   (format output " ")))
-        (format output ")"))
-       (T (princ thing output))))))
+  (let ((*print-case* :downcase))
+    (typecase output
+      ((eql T)   (print-oneline thing *standard-output*))
+      ((eql NIL) (with-output-to-string (o)
+                   (print-oneline thing o)))
+      (stream
+       (typecase thing
+         (null (format output "()"))
+         (cons
+          (cond ((eql 'quote (first thing))
+                 (format output "'")
+                 (print-oneline (second thing) output))
+                (T
+                 (format output "(")
+                 (loop for (car . cdr) on thing
+                       do (print-oneline car output)
+                          (typecase cdr
+                            (null)
+                            (cons (format output " "))
+                            (T (format output " . ")
+                             (print-oneline cdr output))))
+                 (format output ")"))))
+         (string (prin1 thing output))
+         (vector (format output "#(")
+          (loop for i from 0 below (length thing)
+                do (print-oneline (aref thing i))
+                   (when (< i (1- (length thing)))
+                     (format output " ")))
+          (format output ")"))
+         (keyword (prin1 thing output))
+         (T (princ thing output)))))))
 
 (defun geq (value expected)
   (if expected

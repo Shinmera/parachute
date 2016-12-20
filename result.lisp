@@ -111,9 +111,9 @@
                  when            ~a~%~
                  was expected to be ~:[unequal~;equal~] under ~a.~@[~%~a~]"
             (print-oneline (value-form result) NIL)
-            (if (slot-boundp result 'value)
-                (value result)
-                (gensym "UNBOUND"))
+            (print-oneline (if (slot-boundp result 'value)
+                               (value result)
+                               (gensym "UNBOUND")) NIL)
             (print-oneline (expected result) NIL)
             (comparison-geq result)
             (comparison result)
