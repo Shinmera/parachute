@@ -72,10 +72,25 @@
 
 (defmethod eval-in-context (context (result finishing-result))
   (unwind-protect
-       (progn (call-next-method)
-              (setf (status result) :passed))
+       (handler-bind ((condition (lambda (err)
+                                   (setf (value result) err))))
+         (call-next-method)
+         (setf (value result) NIL)
+         (setf (status result) :passed))
     (unless (eql :passed (status result))
       (setf (status result) :failed))))
+
+(defmethod format-result ((result finishing-result) (type (eql :extensive)))
+  (let ((*print-right-margin* 600))
+    (format NIL "The test form   ~a~%"
+            (print-oneline (expression result) NIL))
+    (cond ((not (slot-boundp result 'value))
+           (format NIL "exited with an unknown cause."))
+          ((not (value result))
+           (format NIL "finished without issue."))
+          (T
+           (format NIL "exited by       ~a" (print-oneline (value result) NIL))))
+    (format NIL "~@[~&~a~]" (description result))))
 
 (defclass comparison-result (value-result)
   ((value-form :initarg :value-form :accessor value-form)
