@@ -83,6 +83,7 @@
            expression
            `',expression))))
 
+;;; THIS IS A BAD IDEA AND I DON'T REMEMBER WHY I ADDED IT.
 (defun maybe-unquote (expression)
   (typecase expression
     (cons
@@ -93,9 +94,11 @@
      ;; lexical variables.
      (handler-case (eval expression)
        (error (err)
-         (error "Failed to unquote ~s. You probably have lexical variables that can't be resolved.~%~
-                 The actual error said: ~a"
-                expression err))))
+         (warn "Failed to unquote ~s. You probably have lexical variables that can't be resolved.~%~
+                 The actual error said: ~a~
+                 Continuing with the verbatim expression."
+               expression err)
+         expression)))
     (T expression)))
 
 (defun call-compile (form)
