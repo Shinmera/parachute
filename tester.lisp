@@ -84,7 +84,6 @@
     *context*
     (make-instance 'finishing-result
                    :expression '(finish ,form)
-                   :value-form '(complete ,form)
                    :body (lambda () ,form)
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
