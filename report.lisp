@@ -88,7 +88,7 @@
 
 (defmethod report-on :before ((result result) (report plain))
   (format (output report)
-          "~& ~:[      ~;~:*~6,3f~] ~a~v@{    ~} "
+          "~& ~:[      ~;~:*~6,3f~] ~a~v@{  ~} "
           (duration result)
           (case (status result)
             (:passed  #+asdf-unicode "✔" #-asdf-unicode "o")
