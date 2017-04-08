@@ -56,7 +56,7 @@
          (string (prin1 thing output))
          (vector (format output "#(")
           (loop for i from 0 below (length thing)
-                do (print-oneline (aref thing i))
+                do (print-oneline (aref thing i) output)
                    (when (< i (1- (length thing)))
                      (format output " ")))
           (format output ")"))
