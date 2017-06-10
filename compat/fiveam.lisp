@@ -110,8 +110,12 @@
   (mapcar #'parachute:name (parachute:package-tests *home*)))
 
 (defmacro test (name &body body)
-  (destructuring-bind (name &key depends-on (suite *suite*)) (enlist name)
-    `(def-test ,name (:depends-on ,depends-on :suite ,suite)
+  (destructuring-bind (name &key depends-on (suite *suite*) fixture (compile-at :run-time) profile) (enlist name)
+    `(def-test ,name (:depends-on ,depends-on
+                      :suite ,suite
+                      :fixture ,fixture
+                      :compile-at ,compile-at
+                      :profile ,profile)
        ,@body)))
 
 (defun convert-depends-on (depends-on)
