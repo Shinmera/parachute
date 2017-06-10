@@ -9,6 +9,7 @@
   (:nicknames #:5am #:parachute-5am)
   (:use #:cl)
   (:export
+   #:*default-test-compilation-time*
    #:make-suite
    #:def-suite
    #:in-suite
@@ -69,6 +70,7 @@
 (defvar *!!!* NIL)
 (defvar *home* (find-package '#:org.shirakumo.parachute.5am))
 (defvar *num-trials* 100)
+(defvar *default-test-compilation-time* :run-time)
 
 (defun enlist (a &rest els)
   (if (listp a) a (list* a els)))
@@ -110,7 +112,7 @@
   (mapcar #'parachute:name (parachute:package-tests *home*)))
 
 (defmacro test (name &body body)
-  (destructuring-bind (name &key depends-on (suite *suite*) fixture (compile-at :run-time) profile) (enlist name)
+  (destructuring-bind (name &key depends-on (suite *suite*) fixture (compile-at *default-test-compilation-time*) profile) (enlist name)
     `(def-test ,name (:depends-on ,depends-on
                       :suite ,suite
                       :fixture ,fixture
@@ -126,7 +128,7 @@
                              (convert-depends-on dep)
                              dep)))))
 
-(defmacro def-test (name (&key depends-on (suite *suite*) fixture (compile-at :run-time) profile) &body body)
+(defmacro def-test (name (&key depends-on (suite *suite*) fixture (compile-at *default-test-compilation-time*) profile) &body body)
   (declare (ignore profile))
   (let ((body (ecase compile-at
                 (:definition-time body)
