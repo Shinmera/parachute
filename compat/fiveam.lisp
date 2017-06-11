@@ -214,7 +214,7 @@
   (loop with failure = NIL
         for vars = (mapcar #'funcall (generators result))
         repeat *num-trials*
-        do (setf (fill-pointer (parachute:children result)) 0)
+        do (setf (fill-pointer (parachute:results result)) 0)
            ;; in order to avoid processing "uninteresting" results,
            ;; we simply catch everything and rebind the context and
            ;; rerun the last trial with the proper context. This may
@@ -224,7 +224,7 @@
              (handler-case (apply (body result) vars)
                (error (err) (setf failure err))))
         until (or failure
-                  (loop for child across (parachute:children result)
+                  (loop for child across (parachute:results result)
                         thereis (eql :failed (parachute:status child))))
         while (apply (guard result) vars)
         finally (apply (body result) vars)))
@@ -310,7 +310,7 @@
 ;; Running
 (defun test-results (report)
   (remove-if-not (lambda (a) (typep a 'parachute:test-result))
-                 (parachute:children report)))
+                 (parachute:results report)))
 
 (defun run (test)
   (let ((test (or (parachute:find-test test *home*)
