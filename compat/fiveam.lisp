@@ -6,7 +6,7 @@
 
 (in-package #:cl-user)
 (defpackage #:org.shirakumo.parachute.5am
-  (:nicknames #:5am #:parachute-5am)
+  (:nicknames #:5am #:parachute-5am #:fiveam #:parachute-fiveam)
   (:use #:cl)
   (:export
    #:*default-test-compilation-time*
