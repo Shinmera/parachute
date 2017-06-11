@@ -130,19 +130,19 @@
 
 (defmacro def-test (name (&key depends-on (suite *suite*) fixture (compile-at *default-test-compilation-time*) profile) &body body)
   (declare (ignore profile))
-  (let ((body (ecase compile-at
-                (:definition-time body)
-                (:run-time `((funcall (compile NIL '(lambda () ,@body))))))))
+  (let ((body (if fixture
+                  (destructuring-bind (name &rest args) (enlist fixture)
+                    `((with-fixture ,name ,args ,@body)))
+                  body)))
     `(progn
        (parachute:define-test ,name
          :home *home*
          :parent ,suite
          :depends-on ,(when depends-on (convert-depends-on depends-on))
          :description ,(form-fiddle:lambda-docstring `(lambda () ,@body))
-         ,(if fixture
-              (destructuring-bind (name &rest args) (enlist fixture)
-                `(with-fixture ,name ,args ,@body))
-              `(progn ,@body)))
+         ,@(ecase compile-at
+             (:definition-time body)
+             (:run-time `((funcall (compile NIL '(lambda () ,@body)))))))
        (when *run-test-when-defined*
          (run! ',name))
        ',name)))
