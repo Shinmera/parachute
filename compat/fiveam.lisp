@@ -332,7 +332,7 @@
 (defun explain (report-type results &optional stream recursive-depth)
   (declare (ignore recursive-depth))
   (let ((report (make-instance report-type :expression '5am :stream stream)))
-    (setf (parachute:children report) results)
+    (setf (parachute:results report) (coerce results 'vector))
     (parachute:summarize report)))
 
 (defun ! () (funcall *!*))
