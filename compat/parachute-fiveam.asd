@@ -4,7 +4,6 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:cl-user)
 (asdf:defsystem parachute-fiveam
   :version "1.0.0"
   :license "Artistic"
