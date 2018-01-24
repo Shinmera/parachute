@@ -61,6 +61,7 @@
                      (format output " ")))
           (format output ")"))
          (keyword (prin1 thing output))
+         (pathname (prin1 thing output))
          (T (princ thing output)))))))
 
 (defun geq (value expected)
