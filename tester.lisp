@@ -89,7 +89,7 @@
     `(eval-in-context
       *context*
       (make-instance 'multiple-value-comparison-result
-                     :expression '(is-values ,form ,@comp-expected)
+                     :expression '(isnt-values ,form ,@comp-expected)
                      :value-form ',form
                      :body (lambda () ,form)
                      :expected (list ,@expected)
