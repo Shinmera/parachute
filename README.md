@@ -2,12 +2,15 @@
 Parachute is a simple-to-use and extensible testing framework.
 
 ## How To
-In Parachute, things are organised as a bunch of named tests within a package. Each test can contain a bunch of test forms that make up its body. By default `true`, `false`, `fail`, `is`, `isnt`, `of-type`, and `finish` are provided as test forms.
+In Parachute, things are organised as a bunch of named tests within a package. Each test can contain a bunch of test forms that make up its body. By default `true`, `false`, `fail`, `is`, `isnt`, `is-values`, `isnt-values`, `of-type`, and `finish` are provided as test forms.
 
     (define-test numbers
       (of-type integer 5)
       (true (numberp 2/3))
-      (false (numberp :keyword)))
+      (false (numberp :keyword))
+      (is-values (values 0 "1")
+        (= 0)
+        (equal "1")))
 
 The name of a test can be either a symbol or a string, though both get coerced to a string internally.
 

@@ -14,7 +14,12 @@
   (true T)
   (false NIL)
   (is equal "A" (string :a))
-  (of-type symbol 'foo))
+  (of-type symbol 'foo)
+  (is-values (values 0 "0" 'c)
+    (= 0)
+    (equal "1")
+    (= 2)
+    "This illustrates a multiple value test!"))
 
 (define-test subtest
   :parent example

@@ -44,12 +44,14 @@
    #:format-result
    #:value-result
    #:value
+   #:multiple-value-result
    #:finishing-result
    #:comparison-result
    #:value-form
    #:expected
    #:comparison
    #:comparison-geq
+   #:multiple-value-comparison-result
    #:parent-result
    #:results
    #:find-child-result
@@ -80,6 +82,8 @@
    #:false
    #:is
    #:isnt
+   #:is-values
+   #:isnt-values
    #:fail
    #:of-type
    #:finish

@@ -6,6 +6,13 @@
 
 (in-package #:org.shirakumo.parachute)
 
+(defun number-suffix (n)
+  (case n
+    (1 "st")
+    (2 "nd")
+    (3 "rd")
+    (t "th")))
+
 (defun shuffle (seq)
   (let ((seq (copy-seq seq))
         (len (length seq)))

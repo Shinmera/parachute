@@ -67,6 +67,19 @@
                            (function (funcall (body result)))
                            (T (body result))))))
 
+(defclass multiple-value-result (value-result)
+  ((value :initarg :value :accessor value)
+   (body :initarg :body :accessor body))
+  (:default-initargs
+   :body (error "BODY required.")))
+
+(defmethod eval-in-context (context (result multiple-value-result))
+  (unless (slot-boundp result 'value)
+    (setf (value result) (multiple-value-list
+                          (typecase (body result)
+                            (function (funcall (body result)))
+                            (T (body result)))))))
+
 (defclass finishing-result (value-result)
   ())
 
@@ -106,10 +119,11 @@
 
 (defmethod format-result ((result comparison-result) (type (eql :extensive)))
   (let ((*print-right-margin* 600))
-    (format NIL "The test form   ~a~%~
-                 evaluated to    ~a~%~
-                 when            ~a~%~
-                 was expected to be ~:[unequal~;equal~] under ~a.~@[~%~a~]"
+    (format NIL "The test form ~16t~a~%~
+                 evaluated to ~16t~a~%~
+                 when ~16t~a~%~
+                 was expected to be ~:[unequal~;equal~] under ~a.~
+                 ~@[~%~a~]"
             (print-oneline (value-form result) NIL)
             (print-oneline (if (slot-boundp result 'value)
                                (value result)
@@ -126,6 +140,52 @@
                                      (value result)
                                      (expected result))
                             (comparison-geq result)))
+        (setf (status result) :passed)
+        (setf (status result) :failed))))
+
+(defclass multiple-value-comparison-result (multiple-value-result)
+  ((value-form :initarg :value-form :accessor value-form)
+   (expected :initarg :expected :accessor expected)
+   (comparison :initarg :comparison :accessor comparison)
+   (comparison-geq :initarg :comparison-geq :accessor comparison-geq))
+  (:default-initargs
+   :value-form :unknown
+   :expected '((not null))
+   :comparison '(typep)
+   :comparison-geq T))
+
+(defmethod format-result ((result multiple-value-comparison-result) (type (eql :extensive)))
+  (let ((*print-right-margin* 600))
+    (format NIL "The test form ~16t~a~{~%~{~
+                 ~d~a value is ~16t~a~%~
+                 when ~16t~a~%~
+                 was expected to be ~:[unequal~;equal~] under ~a.~}~}~
+                 ~@[~%~a~]"
+            (print-oneline (value-form result) NIL)
+            (loop for i from 1
+                  for comparison in (comparison result)
+                  for value in (value result)
+                  for expected in (expected result)
+                  unless (ignore-errors
+                          (geq (funcall comparison value expected)
+                               (comparison-geq result)))
+                  collect (list
+                           i (number-suffix i)
+                           (print-oneline value NIL)
+                           (print-oneline expected NIL)
+                           (comparison-geq result)
+                           comparison))
+            (description result))))
+
+(defmethod eval-in-context (context (result multiple-value-comparison-result))
+  (call-next-method)
+  (when (eql :unknown (status result))
+    (if (loop for comparison in (comparison result)
+              for value in (value result)
+              for expected in (expected result)
+              always (ignore-errors
+                      (geq (funcall comparison value expected)
+                           (comparison-geq result))))
         (setf (status result) :passed)
         (setf (status result) :failed))))
 
