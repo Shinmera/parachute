@@ -32,7 +32,7 @@
    #:interactive)
   ;; result.lisp
   (:export
-   #:*prent*
+   #:*parent*
    #:*context*
    #:eval-in-context
    #:result-for-testable
