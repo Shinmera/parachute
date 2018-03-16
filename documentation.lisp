@@ -259,6 +259,17 @@ See BODY
 See VALUE
 See RESULT")
 
+  (type multiple-value-result
+    "A result that carries a list of test result values.
+
+Typically the VALUE slot is only set once the result is evaluated. Note that
+if the VALUE slot is bound at the time that the result is evaluated, the
+BODY will not be run.
+
+See BODY
+See VALUE
+See RESULT")
+
   (function body
     "The function that will be called to evaluate the result and obtain a value.
 
@@ -310,6 +321,20 @@ Defaults to T.
 
 See COMPARISON-RESULT
 See GEQ")
+
+  (type multiple-value-comparison-result
+    "A result that compares against a list of expected values and comparators.
+
+This test sets its status to :passed if, and only if, for every value pair
+from the VALUE, EXPECTED, and COMPARISON lists, the GEQ test succeeds. In
+other words, if we have VALUES (1 \"2\"), EXPECTED (1.0 \"2\"),
+COMPARISON (= equal), then the result would be :passed.
+
+See VALUE-FORM
+See EXPECTED
+See COMPARISON
+See COMPARISON-GEQ
+See VALUE-RESULT")
 
   (type parent-result
     "A result that does not directly perform a test, but rather serves as an aggregate for multiple tests.
@@ -671,6 +696,20 @@ See FIND-CHILD-RESULT"))
 
   (function isnt
     "A tester that succeeds if the value the form returns is not equal to the expected value under the given comparator.")
+
+  (function is-values
+    "A tester that succeeds if each value the form returns is equal to the corresponding expected value under the corresponding comparator.
+
+The body consists of lists of two values, the first being the comparator,
+the second being the expected value. A third, ignored value can be
+supplied as well for aesthetic purposes.")
+
+  (function isnt-values
+    "A tester that succeeds if each value the form returns is not equal to the corresponding expected value under the corresponding comparator.
+
+The body consists of lists of two values, the first being the comparator,
+the second being the expected value. A third, ignored value can be
+supplied as well for aesthetic purposes.")
 
   (function fail
     "A tester that succeeds if the form signals an error of the requested type, defaulting to ERROR.")
