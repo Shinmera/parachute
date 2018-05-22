@@ -79,7 +79,7 @@
 (defmacro capture-error (form &optional (condition 'error))
   (let ((err (gensym "ERR")))
     `(handler-case
-         (prog1 NIL ,form)
+         (and ,form NIL)
        (,condition (,err)
          ,err))))
 
