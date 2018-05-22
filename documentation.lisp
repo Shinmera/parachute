@@ -107,6 +107,20 @@ See RESOLVE-TESTS
 See EVAL-IN-CONTEXT
 See SUMMARIZE")
 
+  (function test-toplevel
+    "Run tests as the toplevel.
+
+This function calls TEST for each of the given test/s and the
+provided arguments. Once all tests have been completed, it will
+cause the implementation to quit.
+
+The exit code will be 100 if any of the tests failed, and 0
+if all of them passed. This is useful for cases like in automated
+continuous integration environments where the exit code determines
+success or failure of the build.
+
+See TEST")
+
   (function summarize
     "Should cause the report to produce some kind of summary.
 

@@ -29,6 +29,14 @@
       (eval-in-context report (result-for-testable test report)))
     (summarize report)))
 
+(defun test-toplevel (designator/s &rest args)
+  (let ((failure NIL))
+    (loop for test in (if (listp designator/s) designator/s (list designator/s))
+          for report = (apply #'test test args)
+          do (when (find :failed (results report) :key #'status)
+               (setf failure T)))
+    (uiop:quit (if failure 100 0))))
+
 (defclass report (parent-result)
   ())
 

@@ -22,6 +22,7 @@
   ;; report.lisp
   (:export
    #:test
+   #:test-toplevel
    #:report
    #:tests-with-status
    #:summarize
