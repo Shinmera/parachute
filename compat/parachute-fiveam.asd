@@ -10,7 +10,9 @@
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "Parachute's FiveAM compatibility layer."
-  :homepage "https://github.com/Shinmera/parachute"
+  :homepage "https://Shinmera.github.io/parachute/"
+  :bug-tracker "https://github.com/Shinmera/parachute/issues"
+  :source-control (:git "https://github.com/Shinmera/parachute.git")
   :serial T
   :components ((:file "fiveam"))
   :depends-on (:parachute))

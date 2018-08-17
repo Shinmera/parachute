@@ -11,7 +11,9 @@
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "An extensible and cross-compatible testing framework."
-  :homepage "https://github.com/Shinmera/parachute"
+  :homepage "https://Shinmera.github.io/parachute/"
+  :bug-tracker "https://github.com/Shinmera/parachute/issues"
+  :source-control (:git "https://github.com/Shinmera/parachute.git")
   :serial T
   :components ((:file "package")
                (:file "toolkit")
