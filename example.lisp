@@ -66,3 +66,9 @@
     (is = 5 6))
   (with-forced-status (:failed)
     (false NIL)))
+
+(define-test fixture
+  :fix (*read-default-float-format*)
+  (is = 0.0f0 (read-from-string "0.0"))
+  (setf *read-default-float-format* 'double-float)
+  (is = 0.0d0 (read-from-string "0.0")))
