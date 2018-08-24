@@ -60,7 +60,8 @@
          (list (list*
                 fixture
                 (loop for type being the hash-keys of *fixture-captures*
-                      for (value captured-p) = (funcall (gethash type *fixture-captures*) fixture)
+                      for (value captured-p) = (multiple-value-list
+                                                (funcall (gethash type *fixture-captures*) fixture))
                       when captured-p collect (cons type value))))
          (package-fixtures fixture)))
     ((or string package)
@@ -68,7 +69,7 @@
 
 (defun restore-fixtures (fixtures)
   (loop for (fixture . value) in fixtures
-        do (loop for (type value) in value
+        do (loop for (type . value) in value
                  do (funcall (gethash type *fixture-restores*) fixture value))))
 
 (defun call-with-fixtures (function fixtures)
