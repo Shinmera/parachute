@@ -651,6 +651,11 @@ See FIND-TEST
 See REMOVE-TEST
 See REFERENCED-DEPENDENCIES")
 
+  (function test-packages
+    "Returns a list of all packages that define tests.
+
+See *TEST-INDEXES*")
+
   (function package-tests
     "Returns a list of all the tests defined in the given package.
 

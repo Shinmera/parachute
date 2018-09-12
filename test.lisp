@@ -146,6 +146,10 @@
                               ,@body))
            ',name)))))
 
+(defun test-packages ()
+  (loop for k being the hash-keys of *test-indexes*
+        collect k))
+
 (defun package-tests (package)
   (let* ((package (or (find-package package)
                       (error "Couldn't find a package called ~s." package)))

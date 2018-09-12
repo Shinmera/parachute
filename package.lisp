@@ -76,6 +76,7 @@
    #:find-test
    #:remove-test
    #:define-test
+   #:test-packages
    #:package-tests)
   ;; tester.lisp
   (:export
