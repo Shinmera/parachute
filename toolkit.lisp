@@ -45,7 +45,10 @@
                    (print-oneline thing o)))
       (stream
        (typecase thing
-         (null (format output "()"))
+         ((or string character keyword pathname)
+          (prin1 thing output))
+         (null
+          (format output "()"))
          (cons
           (cond ((eql 'quote (first thing))
                  (format output "'")
@@ -60,16 +63,15 @@
                             (T (format output " . ")
                              (print-oneline cdr output))))
                  (format output ")"))))
-         (string (prin1 thing output))
-         (vector (format output "#(")
+         (vector
+          (format output "#(")
           (loop for i from 0 below (length thing)
                 do (print-oneline (aref thing i) output)
                    (when (< i (1- (length thing)))
                      (format output " ")))
           (format output ")"))
-         (keyword (prin1 thing output))
-         (pathname (prin1 thing output))
-         (T (princ thing output)))))))
+         (T
+          (princ thing output)))))))
 
 (defun geq (value expected)
   (if expected
