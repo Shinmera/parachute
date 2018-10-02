@@ -139,6 +139,12 @@
   (ignore-errors (geq (funcall (comparison result) value expected)
                       (comparison-geq result))))
 
+(defmethod eval-in-context :before (context (result comparison-result))
+  (unless (or (functionp (comparison result))
+              (fboundp (comparison result)))
+    (error "~s is not a function designator and cannot be used for comparison."
+           (comparison result))))
+
 (defmethod eval-in-context (context (result comparison-result))
   (call-next-method)
   (when (eql :unknown (status result))

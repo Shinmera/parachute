@@ -72,3 +72,9 @@
   (is = 0.0f0 (read-from-string "0.0"))
   (setf *read-default-float-format* 'double-float)
   (is = 0.0d0 (read-from-string "0.0")))
+
+(define-test bad-var
+  (is eql a 'c))
+
+(define-test bad-test
+  (is something 'a 'a))
