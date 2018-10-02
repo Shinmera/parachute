@@ -311,7 +311,8 @@ See VALUE-FORM
 See EXPECTED
 See COMPARISON
 See COMPARISON-GEQ
-See VALUE-RESULT")
+See VALUE-RESULT
+See VALUE-EXPECTED-P")
 
   (function value-form
     "A literal representation of the form that produces the value for the test.
@@ -348,7 +349,8 @@ See VALUE-FORM
 See EXPECTED
 See COMPARISON
 See COMPARISON-GEQ
-See VALUE-RESULT")
+See MULTIPLE-VALUE-RESULT
+See COMPARISON-RESULT")
 
   (type parent-result
     "A result that does not directly perform a test, but rather serves as an aggregate for multiple tests.

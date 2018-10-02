@@ -133,26 +133,24 @@
             (comparison result)
             (description result))))
 
+(defgeneric value-expected-p (result value expected))
+
+(defmethod value-expected-p ((result comparison-result) value expected)
+  (ignore-errors (geq (funcall (comparison result) value expected)
+                      (comparison-geq result))))
+
 (defmethod eval-in-context (context (result comparison-result))
   (call-next-method)
   (when (eql :unknown (status result))
-    (if (ignore-errors (geq (funcall (comparison result)
-                                     (value result)
-                                     (expected result))
-                            (comparison-geq result)))
+    (if (value-expected-p result (value result) (expected result))
         (setf (status result) :passed)
         (setf (status result) :failed))))
 
-(defclass multiple-value-comparison-result (multiple-value-result)
-  ((value-form :initarg :value-form :accessor value-form)
-   (expected :initarg :expected :accessor expected)
-   (comparison :initarg :comparison :accessor comparison)
-   (comparison-geq :initarg :comparison-geq :accessor comparison-geq))
+(defclass multiple-value-comparison-result (multiple-value-result comparison-result)
+  ()
   (:default-initargs
-   :value-form :unknown
    :expected '((not null))
-   :comparison '(typep)
-   :comparison-geq T))
+   :comparison '(typep)))
 
 (defmethod format-result ((result multiple-value-comparison-result) (type (eql :extensive)))
   (let ((*print-right-margin* 600))
@@ -177,17 +175,13 @@
                            comparison))
             (description result))))
 
-(defmethod eval-in-context (context (result multiple-value-comparison-result))
-  (call-next-method)
-  (when (eql :unknown (status result))
-    (if (loop for comparison in (comparison result)
-              for value in (value result)
-              for expected in (expected result)
-              always (ignore-errors
-                      (geq (funcall comparison value expected)
-                           (comparison-geq result))))
-        (setf (status result) :passed)
-        (setf (status result) :failed))))
+(defmethod value-expected-p ((result multiple-value-comparison-result) value expected)
+  (loop for comparison in (comparison result)
+        for value in (value result)
+        for expected in (expected result)
+        always (ignore-errors
+                (geq (funcall comparison value expected)
+                     (comparison-geq result)))))
 
 (defclass parent-result (result)
   ((results :initform (make-array 0 :adjustable T :fill-pointer T) :accessor results)))

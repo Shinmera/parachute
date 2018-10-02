@@ -79,7 +79,7 @@
     (handler-case
         (call-next-method)
       (error (err)
-        (warn "Unhandled error when evaluating ~a: ~a" result err)
+        (warn "Unhandled error when evaluating ~a:~%  ~a~%" result err)
         (setf (status result) :failed)))
     (report-on result report)))
 

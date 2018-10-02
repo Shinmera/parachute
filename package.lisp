@@ -52,6 +52,7 @@
    #:expected
    #:comparison
    #:comparison-geq
+   #:value-expected-p
    #:multiple-value-comparison-result
    #:parent-result
    #:results
