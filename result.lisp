@@ -127,7 +127,7 @@
             (print-oneline (value-form result) NIL)
             (print-oneline (if (slot-boundp result 'value)
                                (value result)
-                               (gensym "UNBOUND")) NIL)
+                               (make-symbol "#<NO RESULT>")) NIL)
             (print-oneline (expected result) NIL)
             (comparison-geq result)
             (comparison result)
