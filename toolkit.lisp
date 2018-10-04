@@ -53,6 +53,9 @@
           (cond ((eql 'quote (first thing))
                  (format output "'")
                  (print-oneline (second thing) output))
+                ((eql 'function (first thing))
+                 (format output "#'")
+                 (print-oneline (second thing) output))
                 (T
                  (format output "(")
                  (loop for (car . cdr) on thing
