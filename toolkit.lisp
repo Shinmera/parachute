@@ -91,7 +91,7 @@
 (defun maybe-quote (expression)
   (typecase expression
     (list (case (first expression)
-            ((quote lambda function #+sbcl sb-int:quasiquote #+ecl si:quasiquote)
+            ((quote lambda function #+ecl si:quasiquote)
              expression)
             (T `',expression)))
     (T (if (constantp expression)
