@@ -159,9 +159,10 @@
             collect v))))
 
 (defmethod eval-in-context (context (test test))
-  (with-fixtures (fixtures test)
-    (loop for test in (tests test)
-          do (funcall test))))
+  (let ((*package* (home test)))
+    (with-fixtures (fixtures test)
+      (loop for test in (tests test)
+            do (funcall test)))))
 
 (defun resolve-dependency-combination (combination test)
   (destructuring-bind (logop &rest combinations) combination
