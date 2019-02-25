@@ -158,6 +158,8 @@
       (loop for v being the hash-values of index
             collect v))))
 
+(defmethod check-evaluatable (context (test test)))
+
 (defmethod eval-in-context (context (test test))
   (let ((*package* (home test)))
     (with-fixtures (fixtures test)

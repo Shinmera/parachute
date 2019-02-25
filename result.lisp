@@ -43,9 +43,13 @@
           (expression result) (status result)
           (description result)))
 
+(defmethod check-evaluatable (context (result result)))
+
 (defmethod eval-in-context :around (context (result result))
   ;; Unless the status is unknown marked we should probably skip.
   (when (eql :unknown (status result))
+    ;; Make sure we are evaluatable.
+    (check-evaluatable context result)
     (let ((start (get-internal-real-time)))
       (unwind-protect
            (call-next-method)
@@ -139,7 +143,7 @@
   (ignore-errors (geq (funcall (comparison result) value expected)
                       (comparison-geq result))))
 
-(defmethod eval-in-context :before (context (result comparison-result))
+(defmethod check-evaluatable (context (result comparison-result))
   (unless (or (functionp (comparison result))
               (fboundp (comparison result)))
     (error "~s is not a function designator and cannot be used for comparison."
@@ -183,11 +187,18 @@
 
 (defmethod value-expected-p ((result multiple-value-comparison-result) value expected)
   (loop for comparison in (comparison result)
-        for value in (value result)
-        for expected in (expected result)
+        for value in value
+        for expected in expected
         always (ignore-errors
                 (geq (funcall comparison value expected)
                      (comparison-geq result)))))
+
+(defmethod check-evaluatable (context (result multiple-value-comparison-result))
+  (dolist (comparison (comparison result))
+    (unless (or (functionp comparison)
+                (fboundp comparison))
+      (error "~s is not a function designator and cannot be used for comparison."
+             comparison))))
 
 (defclass parent-result (result)
   ((results :initform (make-array 0 :adjustable T :fill-pointer T) :accessor results)))

@@ -202,7 +202,15 @@ context will be some report object and the thing being tested some kind of
 result or test instance.
 
 See REPORT
-See RESULT")
+See RESULT
+See CHECK-EVALUATABLE")
+
+  (function check-evaluatable
+    "Checks whether the thing is evaluatable in the context and signals an error if not.
+
+This is primarily used to error out early on tests that are specified wrong.
+
+See EVAL-IN-CONTEXT")
 
   (function result-for-testable
     "Returns an appropriate RESULT instance for the given testable and context.

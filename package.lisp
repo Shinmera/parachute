@@ -36,6 +36,7 @@
    #:*parent*
    #:*context*
    #:eval-in-context
+   #:check-evaluatable
    #:result-for-testable
    #:result
    #:expression
