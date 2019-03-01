@@ -92,7 +92,9 @@
    #:of-type
    #:finish
    #:with-forced-status
-   #:skip)
+   #:skip
+   #:skip-on)
   ;; toolkit.lisp
   (:export
+   #:featurep
    #:with-shuffling))

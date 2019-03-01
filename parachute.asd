@@ -22,7 +22,6 @@
                (:file "result")
                (:file "tester")
                (:file "report")
-               (:file "example")
                (:file "documentation"))
   :depends-on (:documentation-utils
                :form-fiddle))

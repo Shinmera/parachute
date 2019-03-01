@@ -6,6 +6,16 @@
 
 (in-package #:org.shirakumo.parachute)
 
+(defun featurep (expr)
+  (etypecase expr
+    (symbol (find expr *features* :test #'string=))
+    (cons (ecase (first expr)
+            (and (loop for subexpr in (rest expr)
+                       always (featurep subexpr)))
+            (or (loop for subexpr in (rest expr)
+                      thereis (featurep subexpr)))
+            (not (not (featurep (second expr))))))))
+
 (defun number-suffix (n)
   (case n
     (1 "st")

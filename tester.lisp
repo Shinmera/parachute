@@ -144,3 +144,12 @@
 (defmacro skip (desc &body tests)
   `(with-forced-status (:skipped ,@(if (listp desc) desc (list desc)))
      ,@tests))
+
+(defmacro skip-on (features desc &body tests)
+  (let ((thunk (gensym "THUNK")))
+    `(flet ((,thunk ()
+              ,@tests))
+       (if (featurep '(or ,@features))
+           (with-forced-status (:skipped ,@(if (listp desc) desc (list desc)))
+             (,thunk))
+           (,thunk)))))

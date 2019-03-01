@@ -60,6 +60,12 @@ If you need to skip individual test forms rather than a whole test, you can use 
       (skip "Not ready yet"
         (is = 5 (some-unimplemented-function 10))))
 
+If you need to skip tests depending on the implementation, or the presence of other feature combinations, you can use `skip-on`.
+
+    (define-test stuff
+      (skip-on (clisp) "Not supported on clisp."
+        (is equal #p"a/b/" (merge-pathnames "b/" "a/"))))
+
 In order to ensure that there is no accidental sequential dependency between test forms or children, you can use the `:serial NIL` option, which will shuffle the test forms and children each time before evaluating them.
 
     (define-test random

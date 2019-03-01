@@ -753,10 +753,27 @@ supplied as well for aesthetic purposes.")
     "Forces the requested status upon the tests in the body without evaluating any value-results.")
 
   (function skip
-    "Skips the tests in the body by avoiding their evaluation and marking their status as :SKIPPED."))
+    "Skips the tests in the body by avoiding their evaluation and marking their status as :SKIPPED.")
+
+  (function skip-on
+    "Skips the tests in the body if any of the given feature expressions match.
+
+If one of the feature expression matches, the evaluation of the tests in the body is skipped
+and the status of these tests is forced to :SKIPPED. Otherwise, the tests are evaluated as
+normal.
+
+Note that if you have tests that will not /compile/ on a given feature combination, you still
+need to exclude those tests with reader conditionals as well.
+
+See FEATUREP"))
 
 ;; toolkit.lisp
 (docs:define-docs
+  (function featurep
+    "Returns T if the given feature expression matches the set of *FEATURES*
+
+The expression follows the standard feature syntax. See 24.1.2.1 in the CLHS.")
+
   (function shuffle
     "Shuffles the given sequence into a new one where the elements have uniformly distributed random placement.")
 
