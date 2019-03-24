@@ -32,7 +32,8 @@
    :serial T
    :tests ()))
 
-(defmethod initialize-instance :after ((test test) &key parent home name)
+(defmethod shared-initialize :after ((test test) slots &key parent home name)
+  (declare (ignore slots))
   ;; We dereference the dependencies at a later point so just warn for now.
   (handler-bind ((error (lambda (err)
                           (warn (princ-to-string err))
@@ -120,6 +121,18 @@
       (setf (children parent) (remove test (children parent))))
     name))
 
+(defun ensure-test (class &rest initargs)
+  (let ((existing (find-test (getf initargs :name) (getf initargs :home)))
+        (class (etypecase class
+                 (class class)
+                 (symbol (find-class class)))))
+    (cond (existing
+           (unless (eq (class-of existing) class)
+             (apply #'change-class existing class initargs))
+           (apply #'reinitialize-instance existing initargs))
+          (T
+           (apply #'make-instance class initargs)))))
+
 (defmacro define-test (name &body arguments-and-body)
   (destructuring-bind (nparent name) (if (listp name) name (list NIL name))
     (form-fiddle:with-body-options (body options parent home (test-class 'test) (compile-at :compile-time)) arguments-and-body
@@ -130,16 +143,16 @@
           (error "Cannot specify parent through name and through a keyword argument at the same time!"))
         `(let ((*package* ,*package*)) ; Make sure package stays consistent throughout initialisation.
            (setf (find-test ',name ,home)
-                 (make-instance ',test-class
-                                :name ',name
-                                :home ,home
-                                :tests (list ,@(loop for form in body
-                                                     collect (ecase compile-at
-                                                               (:compile-time `(lambda () ,form))
-                                                               (:execute `(lambda () (call-compile ',form))))))
-                                :parent ',(or parent nparent)
-                                ,@(loop for option in options
-                                        collect `',option)))
+                 (ensure-test ',test-class
+                              :name ',name
+                              :home ,home
+                              :tests (list ,@(loop for form in body
+                                                   collect (ecase compile-at
+                                                             (:compile-time `(lambda () ,form))
+                                                             (:execute `(lambda () (call-compile ',form))))))
+                              :parent ',(or parent nparent)
+                              ,@(loop for option in options
+                                      collect `',option)))
            ,@(loop for (def subname . body) in defs
                    collect `(,def (,name ,subname)
                               :home ,home
