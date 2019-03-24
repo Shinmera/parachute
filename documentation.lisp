@@ -627,7 +627,7 @@ BODY ::= KARG* form*
 KARG ::= keyword expression
 
 Each karg in the body is used as an initialization argument to the test
-instance with the exception of TEST-CLASS, which is used as the class-name
+instance with the exception of :TEST-CLASS, which is used as the class-name
 to create a test instance with and defaults to TEST. The values of the
 keyword arguments are always passed quoted.
 
@@ -655,6 +655,14 @@ form.
 
 Note that the dependencies of the test can be a combined by logic operators
 of :AND :OR and :NOT. See REFERENCED-DEPENDENCIES for the necessary structure.
+
+If the test object to be defined already exists, the existing instance is
+updated as necessary instead of creating a new one. The update proceeds in two
+steps: If the requested :TEST-CLASS is different from the instance's class the
+disparity is attempted to be reconciled through CHANGE-CLASS. The instance's
+fields are then always updated via REINITIALIZE-INSTANCE. This should ensure
+that, in the normal case of redefining tests via DEFINE-TEST, test objects
+returned by FIND-TEST are EQ to each other under the same arguments.
 
 See TEST
 See FIND-TEST

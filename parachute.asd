@@ -6,7 +6,7 @@
 
 
 (asdf:defsystem parachute
-  :version "1.3.0"
+  :version "1.3.1"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
