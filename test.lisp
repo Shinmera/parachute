@@ -179,6 +179,14 @@
       (loop for test in (tests test)
             do (funcall test)))))
 
+(defmethod eval-in-context :after (context (test test))
+  (loop with skipped = (skipped-children test)
+        for child in (children test)
+        for subresult = (result-for-testable child context)
+        do (when (find child skipped)
+             (setf (status child) :skipped))
+           (eval-in-context context subresult)))
+
 (defun resolve-dependency-combination (combination test)
   (destructuring-bind (logop &rest combinations) combination
     (flet ((find-test (name home)

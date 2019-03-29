@@ -259,20 +259,12 @@
 
 (defmethod eval-in-context (context (result test-result))
   (let* ((test (expression result))
-         (result (result-for-testable test context))
-         (skipped (skipped-children test)))
+         (result (result-for-testable test context)))
     (setf (description result) (description test))
     (cond ((check-dependency-combination :passed context (dependencies test))
            (eval-in-context context test))
           (T
-           (setf (status result) :skipped)))
-    (loop for child in (children test)
-          for subresult = (result-for-testable child context)
-          do (cond ((find child skipped)
-                    (setf (status child) :skipped)
-                    (eval-in-context context subresult))
-                   (T
-                    (eval-in-context context subresult))))))
+           (setf (status result) :skipped)))))
 
 ;; This is a hack, oh boy.
 (defvar *real-context* NIL)
