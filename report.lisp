@@ -25,15 +25,20 @@
                         :expression designator
                         (removef args :report)))
          (*context* report))
-    (dolist (test tests)
-      (eval-in-context report (result-for-testable test report)))
+    (loop for test in tests
+          for result = (result-for-testable test report)
+          do (eval-in-context report result)
+             (when (eql :failed (status result))
+               (setf (status report) :failed)))
+    (when (eql :unknown (status report))
+      (setf (status report) :passed))
     (summarize report)))
 
 (defun test-toplevel (designator/s &rest args)
   (let ((failure NIL))
     (loop for test in (if (listp designator/s) designator/s (list designator/s))
           for report = (apply #'test test args)
-          do (when (find :failed (results report) :key #'status)
+          do (when (eql :failed (status report))
                (setf failure T)))
     (uiop:quit (if failure 100 0))))
 
@@ -42,8 +47,9 @@
 
 (defmethod print-object ((report report) stream)
   (print-unreadable-object (report stream :type T)
-    (format stream "~a results"
-            (length (results report)))))
+    (format stream "~s, ~a results"
+            (length (results report))
+            (status report))))
 
 (defmethod tests-with-status (status (report report))
   (delete-if-not (lambda (a) (typep a 'test))
