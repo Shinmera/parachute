@@ -40,7 +40,9 @@
                           (continue err))))
     (dependencies test))
   (when parent
-    (let ((found (find-test parent home)))
+    (let* ((home (if (listp parent) (first parent) home))
+           (parent (if (listp parent) (second parent) parent))
+           (found (find-test parent home)))
       (unless found
         (error "Could not find a parent by the name of ~a within ~a's home ~a!"
                parent name home))

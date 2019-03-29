@@ -459,7 +459,9 @@ Note that merely initializing a test instance will not register it
 to be found by FIND-TEST. It will also not tie it in with the rest
 of the tests. An error will be signalled, if a parent is designated
 that does not exist, and warnings will be signalled if dependencies
-are designated that do not exist.
+are designated that do not exist. The PARENT may be either a test
+designator name, which will be resolved within HOME, or a list of
+a package designator to use as the HOME and a name.
 
 In order for the test to be tied in and registered to be findable,
 use (SETF (FIND-TEST name home) test). In order to remove it, simply
@@ -652,6 +654,11 @@ definition time (default, value :COMPILE-TIME) or at test evaluation time
 (value :EXECUTE). The latter is achieved by, instead of a straight-up LAMBDA
 for each test form, it wraps it in a LAMBDA that calls COMPILE on the source
 form.
+
+The karg :PARENT can be either a test designator, or a list of a package
+designator and a test name. The latter case allows you to set the test of
+another home package as the parent, useful if you split your tests across
+multiple packages.
 
 Note that the dependencies of the test can be a combined by logic operators
 of :AND :OR and :NOT. See REFERENCED-DEPENDENCIES for the necessary structure.
