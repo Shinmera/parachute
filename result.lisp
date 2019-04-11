@@ -157,7 +157,7 @@
         (setf (status result) :passed)
         (setf (status result) :failed))))
 
-(defclass multiple-value-comparison-result (multiple-value-result comparison-result)
+(defclass multiple-value-comparison-result (comparison-result multiple-value-result)
   ()
   (:default-initargs
    :expected '((not null))
