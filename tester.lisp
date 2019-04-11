@@ -46,7 +46,7 @@
   `(eval-in-context
     *context*
     (make-instance 'comparison-result
-                   :expression '(is ,comp ,expected ,form)
+                   :expression '(isnt ,comp ,expected ,form)
                    :value-form ',form
                    :body (lambda () ,form)
                    :expected ,expected
