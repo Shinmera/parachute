@@ -93,8 +93,9 @@
                                    (setf (value result) err))))
          (call-next-method)
          (setf (value result) NIL)
-         (setf (status result) :passed))
-    (unless (eql :passed (status result))
+         (when (eql :unknown (status result))
+           (setf (status result) :passed)))
+    (when (eql :unknown (status result))
       (setf (status result) :failed))))
 
 (defmethod format-result ((result finishing-result) (type (eql :extensive)))
