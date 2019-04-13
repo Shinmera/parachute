@@ -71,7 +71,7 @@
 
 (defclass plain (report)
   ((output :initarg :output :initarg :stream :accessor output))
-  (:default-initargs :stream T))
+  (:default-initargs :stream *standard-output*))
 
 (defvar *level* 0)
 
@@ -136,12 +136,12 @@
             (length (filter-test-results failures))
             (length (results-with-status :skipped report)))
     (when failures
-      (format T "~&~%;; Failures:~%")
+      (format (output report) "~&~%;; Failures:~%")
       (dolist (failure failures)
         (when (typep failure 'test-result)
-          (format T "~&~a~%" (format-result failure :extensive))
+          (format (output report) "~&~a~%" (format-result failure :extensive))
           (dolist (failure (results-with-status :failed failure))
-            (format T "~&~a~%~%" (format-result failure :extensive)))))))
+            (format (output report) "~&~a~%~%" (format-result failure :extensive)))))))
   report)
 
 (defclass interactive (report)
