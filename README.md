@@ -38,15 +38,15 @@ Often times it also makes sense to organise tests according to a hierarchy. For 
 
     (define-test test-a
       :parent suite
-      ...)
+      #|...|#)
 
     (define-test (suite test-b)
-      ...)
+      #|...|#)
 
     (define-test other-suite
-      ...
+      #|...|#
       (define-test other-test
-         ...))
+         #|...|#))
 
 Sometimes it is then useful to skip children if you know that they are either faulty or incomplete and shouldn't yet be tested as part of the greater scheme.
 
@@ -143,11 +143,11 @@ The latter on the other hand will present you the debugger with a handful of use
 And that should cover most of it. Parachute does not have any fancy ASDF integration, however I don't believe any is needed anyway. Simply modifying your main system and test system as follows should be sufficient.
 
     (asdf:defsystem main-system
-      ...
+      #|...|#
       :in-order-to ((asdf:test-op (asdf:test-op :test-system))))
 
     (asdf:defsystem test-system
-      ...
+      #|...|#
       :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :test-package)))
 
 This should allow you to run the tests via ASDF like so: `(asdf:test-system :main-system)`.
@@ -184,7 +184,7 @@ Finally we have the `test-result` which takes care of properly evaluating an act
 
 The default evaluation procedure for a test itself is to simply call all the functions in the `tests` list in a `with-fixtures` environment.
 
-And that describes the semantics of default test procedures. Actual test forms like `is` are created through macros that emit an `(eval-in-context *context* (make-instance 'comparison-result ...))` form. The `*context*` object is automatically bound to the context object on call of `eval-in-context` and thus always refers to the current context object. This allows results to be evaluated even from within opaque parts like user-defined functions.
+And that describes the semantics of default test procedures. Actual test forms like `is` are created through macros that emit an `(eval-in-context *context* (make-instance 'comparison-result #|...|#))` form. The `*context*` object is automatically bound to the context object on call of `eval-in-context` and thus always refers to the current context object. This allows results to be evaluated even from within opaque parts like user-defined functions.
 
 ### Report Generation
 Finally we come to the question of how to generate a report and interact with the evaluation process. The most primitive idea for a report is one that doesn't do anything at all, except for perhaps catching stray errors. This is implemented by the `quiet` report object, which only has a single `eval-in-context` `:around` method that has a handler-case around the rest.
