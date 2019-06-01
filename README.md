@@ -148,7 +148,7 @@ And that should cover most of it. Parachute does not have any fancy ASDF integra
 
     (asdf:defsystem test-system
       ...
-      :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :test-system)))
+      :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :test-package)))
 
 This should allow you to run the tests via ASDF like so: `(asdf:test-system :main-system)`.
 
