@@ -6,7 +6,7 @@
 
 (asdf:defsystem parachute-fiveam
   :version "1.0.0"
-  :license "Artistic"
+  :license "zlib"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "Parachute's FiveAM compatibility layer."
