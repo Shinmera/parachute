@@ -82,15 +82,16 @@
 
 (defmethod eval-in-context :around ((report plain) (result result))
   (when (eql :unknown (status result))
-    (handler-case
-        (call-next-method)
-      (error (err)
-        (warn "Unhandled error when evaluating ~a:~%  ~a~%"
-              (or (ignore-errors (format-result result :oneline))
-                  result)
-              err)
-        (setf (status result) :failed)))
-    (report-on result report)))
+    (multiple-value-prog1
+        (handler-case
+            (call-next-method)
+          (error (err)
+            (warn "Unhandled error when evaluating ~a:~%  ~a~%"
+                  (or (ignore-errors (format-result result :oneline))
+                      result)
+                  err)
+            (setf (status result) :failed)))
+      (report-on result report))))
 
 (defmethod eval-in-context ((report plain) (result value-result))
   (handler-case
@@ -98,6 +99,11 @@
     (error (err)
       (setf (value result) err)
       (setf (status result) :failed))))
+
+(defmethod eval-in-context ((report plain) (result finishing-result))
+  (handler-case
+      (call-next-method)
+    (error ())))
 
 (defmethod eval-in-context ((report plain) (result result))
   (let ((*level* (1+ *level*)))

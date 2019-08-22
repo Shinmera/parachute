@@ -50,14 +50,15 @@
   (when (eql :unknown (status result))
     ;; Make sure we are evaluatable.
     (check-evaluatable context result)
-    (let ((start (get-internal-real-time)))
-      (unwind-protect
-           (call-next-method)
-        (setf (duration result) (/ (- (get-internal-real-time) start)
-                                   internal-time-units-per-second))))
-    ;; Mark ourselves as passed if we didn't already set the status.    
-    (when (eql :unknown (status result))
-      (setf (status result) :passed))))
+    (multiple-value-prog1
+        (let ((start (get-internal-real-time)))
+          (unwind-protect
+               (call-next-method)
+            (setf (duration result) (/ (- (get-internal-real-time) start)
+                                       internal-time-units-per-second))))
+      ;; Mark ourselves as passed if we didn't already set the status.    
+      (when (eql :unknown (status result))
+        (setf (status result) :passed)))))
 
 (defclass value-result (result)
   ((value :initarg :value :accessor value)
@@ -82,7 +83,8 @@
     (setf (value result) (multiple-value-list
                           (typecase (body result)
                             (function (funcall (body result)))
-                            (T (body result)))))))
+                            (T (body result)))))
+    (values-list (value result))))
 
 (defclass finishing-result (value-result)
   ())
@@ -91,10 +93,11 @@
   (unwind-protect
        (handler-bind ((condition (lambda (err)
                                    (setf (value result) err))))
-         (call-next-method)
-         (setf (value result) NIL)
-         (when (eql :unknown (status result))
-           (setf (status result) :passed)))
+         (multiple-value-prog1
+             (call-next-method)
+           (setf (value result) NIL)
+           (when (eql :unknown (status result))
+             (setf (status result) :passed))))
     (when (eql :unknown (status result))
       (setf (status result) :failed))))
 
@@ -151,11 +154,12 @@
            (comparison result))))
 
 (defmethod eval-in-context (context (result comparison-result))
-  (call-next-method)
-  (when (eql :unknown (status result))
-    (if (value-expected-p result (value result) (expected result))
-        (setf (status result) :passed)
-        (setf (status result) :failed))))
+  (multiple-value-prog1
+      (call-next-method)
+    (when (eql :unknown (status result))
+      (if (value-expected-p result (value result) (expected result))
+          (setf (status result) :passed)
+          (setf (status result) :failed)))))
 
 (defclass multiple-value-comparison-result (comparison-result multiple-value-result)
   ()
@@ -248,15 +252,16 @@
   ;; the timing grips in the AROUND method of the RESULT class for
   ;; EVAL-IN-CONTEXT, which would count them running in a BEFORE.
   (eval-dependency-combination context (dependencies (expression result)))
-  (call-next-method)
-  (let ((test (expression result)))
-    (when (and (time-limit test)
-               (< (time-limit test)
-                  (duration result)))
-      (setf (description result)
-            (format NIL "The limit of ~fs was exceeded as the test took ~fs to run."
-                    (time-limit test) (duration result)))
-      (setf (status result) :failed))))
+  (multiple-value-prog1
+      (call-next-method)
+    (let ((test (expression result)))
+      (when (and (time-limit test)
+                 (< (time-limit test)
+                    (duration result)))
+        (setf (description result)
+              (format NIL "The limit of ~fs was exceeded as the test took ~fs to run."
+                      (time-limit test) (duration result)))
+        (setf (status result) :failed)))))
 
 (defmethod eval-in-context (context (result test-result))
   (let* ((test (expression result))
@@ -288,7 +293,8 @@
 (defmethod eval-in-context ((context controlling-result) (result value-result))
   (setf (body result) (lambda () (setf (status result) (child-status context))))
   (eval-in-context *real-context* result)
-  (slot-makunbound result 'value))
+  (slot-makunbound result 'value)
+  NIL)
 
 (defmethod format-result ((result controlling-result) (type (eql :oneline)))
   (format NIL "~a~@[: ~a~]"
