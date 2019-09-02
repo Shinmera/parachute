@@ -1,0 +1,61 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+
+;cmucl crashes with silent on
+(ql:quickload '(:ci-utils :ci-utils/coveralls :parachute :iterate)
+              :silent (not (member :cmu *features*)))
+
+(defpackage :ros.script.run-parachute
+  (:use :cl
+        :iterate))
+(in-package :ros.script.run-parachute)
+
+
+(defun show-help ()
+  (format t "~
+Usage: run-parachute [options] <test names>...
+Loads the system with quicklisp then calls parachute:test with a list of the
+test names.  Each test name is parsed with read-from-string after all systems
+are loaded, so package qualified names can be used.
+
+If the COVERALLS environemenal variable is present and non-empty, coverage will
+be measured and reported to COVERALLS on platforms supported by CI-Utils.
+Additionally, the environmental variable COVERAGE_EXCLUDED is read as a colon
+seperated list of paths to exclude from measuring coverage, in addition to those
+specified as arguments.
+
+Note that currently the systems in the project root are loaded with
+COVERALLS is  enable.  This behavior is not to be relied on and may change in
+the future, so instead use the `--quicklisp`/`-l` flag.
+Options
+--help|-h                     - prints this help message
+--quickload|-l <sytem>        - loads the specified system via quicklisp
+--coverage-exclude|-e <file>  - excludes the path from any coverage measurements
+                                measurement~%")
+  (uiop:quit 2))
+
+
+(defun main (&rest argv)
+  (when (> 1 (length argv))
+    (show-help))
+  (iter (generate arg-list in argv)
+        (for arg = (next arg-list))
+    (cond
+      ((or (string= "--help" arg) (string= "-h" arg))
+       (show-help))
+      ((or (string= "--quickload" arg) (string= "-l" arg))
+       (collect (next arg-list) into loaded-systems))
+      ((or (string= "--exclude" arg) (string= "-e" arg))
+       (collect (next arg-list) into excluded))
+      (t
+       (collect arg into tests)))
+    ;evaluate tests here with `loaded-systems`, `excluded`, and `tests` in scope
+    (finally
+      (setf excluded (nconc excluded (ci-utils/coveralls:coverage-excluded)))
+      (ci-utils/coveralls:with-coveralls excluded
+        (when loaded-systems
+          (ql:quickload loaded-systems))
+        (parachute:test-toplevel (mapcar 'read-from-string tests))))))
