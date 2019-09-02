@@ -4,18 +4,16 @@
 exec ros -Q -- $0 "$@"
 |#
 
-;cmucl crashes with silent on
 (ql:quickload '(:ci-utils/coveralls :parachute)
-              :silent (not (member :cmu *features*)))
+              :silent (not (member :cmu *features*))) ; cmucl crashes with silent on
 
-(defpackage :ros.script.run-parachute
-  (:use :cl
-        :iterate))
-(in-package :ros.script.run-parachute)
+(defpackage #:ros.script.run-parachute
+  (:use #:cl))
+(in-package #:ros.script.run-parachute)
 
 
 (defun show-help ()
-  (format t "~
+  (format T "~
 Usage: run-parachute [options] <test names>...
 Loads the system with quicklisp then calls parachute:test with a list of the
 test names.  Each test name is parsed with read-from-string after all systems
@@ -39,7 +37,7 @@ Options
 
 
 (defun main (&rest argv)
-  (when (> 1 (length argv))
+  (when (< (length argv) 1)
     (show-help))
   (loop for args = argv then (rest args)
         for arg = (first args)
@@ -54,7 +52,7 @@ Options
         else
         collect arg into tests
         finally (progn
-                  (setf excluded (nconc excluded (ci-utils/coveralls:coverage-excluded)))
+                  (setf excluded (append excluded (ci-utils/coveralls:coverage-excluded)))
                   (when loaded-systems
                     (ql:quickload loaded-systems))
                   (parachute:test-toplevel (mapcar 'read-from-string tests)))))
