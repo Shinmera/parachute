@@ -5,7 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 
 ;cmucl crashes with silent on
-(ql:quickload '(:ci-utils :ci-utils/coveralls :parachute :iterate)
+(ql:quickload '(:ci-utils/coveralls :parachute)
               :silent (not (member :cmu *features*)))
 
 (defpackage :ros.script.run-parachute
@@ -41,21 +41,20 @@ Options
 (defun main (&rest argv)
   (when (> 1 (length argv))
     (show-help))
-  (iter (generate arg-list in argv)
-        (for arg = (next arg-list))
-    (cond
-      ((or (string= "--help" arg) (string= "-h" arg))
-       (show-help))
-      ((or (string= "--quickload" arg) (string= "-l" arg))
-       (collect (next arg-list) into loaded-systems))
-      ((or (string= "--exclude" arg) (string= "-e" arg))
-       (collect (next arg-list) into excluded))
-      (t
-       (collect arg into tests)))
-    ;evaluate tests here with `loaded-systems`, `excluded`, and `tests` in scope
-    (finally
-      (setf excluded (nconc excluded (ci-utils/coveralls:coverage-excluded)))
-      (ci-utils/coveralls:with-coveralls excluded
-        (when loaded-systems
-          (ql:quickload loaded-systems))
-        (parachute:test-toplevel (mapcar 'read-from-string tests))))))
+  (loop for args = argv then (rest args)
+        for arg = (first args)
+        if (or (string= "--help" arg) (string= "-h" arg))
+        do (show-help) ; calls uiop:quit
+        else if (or (string= "--quickload" arg) (string= "-l" arg))
+        collect (second args) into loaded-system
+        and do (setf args (rest args))
+        else if (or (string= "--exclude" arg) (string= "-e" arg))
+        collect (second args) into excluded
+        and do (setf args (rest args))
+        else
+        collect arg into tests
+        finally (progn
+                  (setf excluded (nconc excluded (ci-utils/coveralls:coverage-excluded)))
+                  (when loaded-systems
+                    (ql:quickload loaded-systems))
+                  (parachute:test-toplevel (mapcar 'read-from-string tests)))))
