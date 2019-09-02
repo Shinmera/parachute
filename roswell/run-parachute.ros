@@ -32,14 +32,18 @@ Options
 --help|-h                     - prints this help message
 --quickload|-l <sytem>        - loads the specified system via quicklisp
 --coverage-exclude|-e <file>  - excludes the path from any coverage measurements
-                                measurement~%")
+                                measurement
+--report|-r <reporter>        - Uses the specified parachute reporter class.
+                                The value is read from the parachute package
+                                after all user specified systems are loaded.~%")
   (uiop:quit 2))
 
 
 (defun main (&rest argv)
   (when (< (length argv) 1)
     (show-help))
-  (loop for args = argv then (rest args)
+  (loop with reporter = "plain"
+        for args = argv then (rest args)
         for arg = (first args)
         if (or (string= "--help" arg) (string= "-h" arg))
         do (show-help) ; calls uiop:quit
@@ -49,10 +53,16 @@ Options
         else if (or (string= "--exclude" arg) (string= "-e" arg))
         collect (second args) into excluded
         and do (setf args (rest args))
+        else if (or (string= "--report" arg) (string= "-r" arg))
+        do (setf reporter (second args)
+                 args (cdr args))
         else
         collect arg into tests
         finally (progn
                   (setf excluded (append excluded (ci-utils/coveralls:coverage-excluded)))
-                  (when loaded-systems
-                    (ql:quickload loaded-systems))
-                  (parachute:test-toplevel (mapcar 'read-from-string tests)))))
+                  (ci-utils/coveralls:with-coveralls excluded
+                    (when loaded-systems
+                      (ql:quickload loaded-systems))
+                    (parachute:test-toplevel (mapcar 'read-from-string tests)
+                                             :report (let ((*package* (find-package "PARACHUTE")))
+                                                       (read-from-string reporter)))))))
