@@ -1,0 +1,69 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+
+(ql:quickload '(:ci-utils/coveralls :parachute)
+              :silent (not (member :cmu *features*))) ; cmucl crashes with silent on
+
+(defpackage #:ros.script.run-parachute
+  (:use #:cl))
+(in-package #:ros.script.run-parachute)
+
+
+(defun show-help ()
+  (format T "~
+Usage: run-parachute [options] <test names>...
+Loads the system with quicklisp then calls parachute:test with a list of the
+test names.  Each test name is parsed with read-from-string after all systems
+are loaded, so package qualified names can be used.
+
+If the COVERALLS environemenal variable is present and non-empty, coverage will
+be measured and reported to COVERALLS on platforms supported by CI-Utils.
+Additionally, the environmental variable COVERAGE_EXCLUDED is read as a colon
+seperated list of paths to exclude from measuring coverage, in addition to those
+specified as arguments.
+
+Note that currently the systems in the project root are loaded with
+COVERALLS is  enable.  This behavior is not to be relied on and may change in
+the future, so instead use the `--quicklisp`/`-l` flag.
+Options
+--help|-h                     - prints this help message
+--quickload|-l <sytem>        - loads the specified system via quicklisp
+--coverage-exclude|-e <file>  - excludes the path from any coverage measurements
+                                measurement
+--report|-r <reporter>        - Uses the specified parachute reporter class.
+                                The value is read from the parachute package
+                                after all user specified systems are loaded.~%")
+  (uiop:quit 2))
+
+
+(defun main (&rest argv)
+  (when (< (length argv) 1)
+    (show-help))
+  (let ((loaded-systems ())
+        (excluded (ci-utils/coveralls:coverage-excluded))
+        (reporter "plain"))
+    (loop for args = argv then (rest args)
+          for arg = (first args)
+          while args
+          do (cond ((or (string= "--help" arg) (string= "-h" arg))
+                    (show-help)) ; calls uiop:quit
+                   ((or (string= "--help" arg) (string= "-h" arg))
+                    (push (second args) loaded-systems)
+                    (setf args (rest args)))
+                   ((or (string= "--exclude" arg) (string= "-e" arg))
+                    (push (second args) excluded)
+                    (setf args (rest args)))
+                   ((or (string= "--report" arg) (string= "-r" arg))
+                    (setf reporter (second args)
+                          args (rest args)))
+                   (T
+                    (push arg tests))))
+    (ci-utils/coveralls:with-coveralls excluded
+      (when loaded-systems
+        (ql:quickload loaded-systems))
+      (parachute:test-toplevel (mapcar 'read-from-string (reverse tests))
+                               :report (let ((*package* (find-package "PARACHUTE")))
+                                         (read-from-string reporter))))))
