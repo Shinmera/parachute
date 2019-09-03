@@ -44,11 +44,12 @@ Options
     (show-help))
   (loop with reporter = "plain"
         for args = argv then (rest args)
+        while args
         for arg = (first args)
         if (or (string= "--help" arg) (string= "-h" arg))
         do (show-help) ; calls uiop:quit
         else if (or (string= "--quickload" arg) (string= "-l" arg))
-        collect (second args) into loaded-system
+        collect (second args) into loaded-systems
         and do (setf args (rest args))
         else if (or (string= "--exclude" arg) (string= "-e" arg))
         collect (second args) into excluded
@@ -58,11 +59,9 @@ Options
                  args (cdr args))
         else
         collect arg into tests
-        finally (progn
-                  (setf excluded (append excluded (ci-utils/coveralls:coverage-excluded)))
-                  (ci-utils/coveralls:with-coveralls excluded
-                    (when loaded-systems
-                      (ql:quickload loaded-systems))
-                    (parachute:test-toplevel (mapcar 'read-from-string tests)
-                                             :report (let ((*package* (find-package "PARACHUTE")))
-                                                       (read-from-string reporter)))))))
+        finally (ci-utils/coveralls:with-coveralls (append excluded (ci-utils/coveralls:coverage-excluded))
+                  (when loaded-systems
+                    (ql:quickload loaded-systems))
+                  (parachute:test-toplevel (mapcar 'read-from-string tests)
+                                           :report (let ((*package* (find-package "PARACHUTE")))
+                                                     (read-from-string reporter))))))
