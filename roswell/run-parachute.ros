@@ -42,26 +42,28 @@ Options
 (defun main (&rest argv)
   (when (< (length argv) 1)
     (show-help))
-  (loop with reporter = "plain"
-        for args = argv then (rest args)
-        while args
-        for arg = (first args)
-        if (or (string= "--help" arg) (string= "-h" arg))
-        do (show-help) ; calls uiop:quit
-        else if (or (string= "--quickload" arg) (string= "-l" arg))
-        collect (second args) into loaded-systems
-        and do (setf args (rest args))
-        else if (or (string= "--exclude" arg) (string= "-e" arg))
-        collect (second args) into excluded
-        and do (setf args (rest args))
-        else if (or (string= "--report" arg) (string= "-r" arg))
-        do (setf reporter (second args)
-                 args (cdr args))
-        else
-        collect arg into tests
-        finally (ci-utils/coveralls:with-coveralls (append excluded (ci-utils/coveralls:coverage-excluded))
-                  (when loaded-systems
-                    (ql:quickload loaded-systems))
-                  (parachute:test-toplevel (mapcar 'read-from-string tests)
-                                           :report (let ((*package* (find-package "PARACHUTE")))
-                                                     (read-from-string reporter))))))
+  (let ((loaded-systems ())
+        (excluded (ci-utils/coveralls:coverage-excluded))
+        (reporter "plain"))
+    (loop for args = argv then (rest args)
+          for arg = (first args)
+          while args
+          do (cond ((or (string= "--help" arg) (string= "-h" arg))
+                    (show-help)) ; calls uiop:quit
+                   ((or (string= "--help" arg) (string= "-h" arg))
+                    (push (second args) loaded-systems)
+                    (setf args (rest args)))
+                   ((or (string= "--exclude" arg) (string= "-e" arg))
+                    (push (second args) excluded)
+                    (setf args (rest args)))
+                   ((or (string= "--report" arg) (string= "-r" arg))
+                    (setf reporter (second args)
+                          args (rest args)))
+                   (T
+                    (push arg tests))))
+    (ci-utils/coveralls:with-coveralls excluded
+      (when loaded-systems
+        (ql:quickload loaded-systems))
+      (parachute:test-toplevel (mapcar 'read-from-string (reverse tests))
+                               :report (let ((*package* (find-package "PARACHUTE")))
+                                         (read-from-string reporter))))))
