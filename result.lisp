@@ -230,8 +230,7 @@
         collect result))
 
 (defmethod add-result ((result result) (parent parent-result))
-  (unless (find result (results parent))
-    (vector-push-extend result (results parent))))
+  (vector-push-extend result (results parent)))
 
 (defclass test-result (parent-result)
   ())
