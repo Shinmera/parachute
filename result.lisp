@@ -68,9 +68,12 @@
 
 (defmethod eval-in-context (context (result value-result))
   (unless (slot-boundp result 'value)
-    (setf (value result) (typecase (body result)
-                           (function (funcall (body result)))
-                           (T (body result))))))
+    (let ((results (multiple-value-list
+                    (typecase (body result)
+                      (function (funcall (body result)))
+                      (T (body result))))))
+      (setf (value result) (first results))
+      (values-list results))))
 
 (defclass multiple-value-result (value-result)
   ((value :initarg :value :accessor value)
