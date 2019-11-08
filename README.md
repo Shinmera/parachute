@@ -93,7 +93,9 @@ In case your code will cause changes to the global environment, you probably wil
       (setf *read-default-float-format* 'double-float)
       (of-type double-float (read-from-string "0.5")))
 
-You can also tell it to hold all the symbols accessible to a certain package in place by giving it a package designator as a keyword, gensym, or string. Using `with-fixtures`, this can also be done locally. It expects an evaluated list of fixtures.
+You can also tell it to hold all the symbols accessible to a certain package in place by specifying a package designator as a keyword, gensym, or string. In any case, note that these fixtures only apply to the test itself, not to any child tests that might be associated.
+
+Using `with-fixtures`, fixing can also be done locally. It expects an evaluated list of bindings to fix in place.
 
     (define-test float-format2
       (with-fixtures '(*read-default-float-format*)
