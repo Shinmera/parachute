@@ -70,8 +70,10 @@
         (setf (status result) :failed)))))
 
 (defclass plain (report)
-  ((output :initarg :output :initarg :stream :accessor output))
-  (:default-initargs :stream *standard-output*))
+  ((output :initarg :output :initarg :stream :accessor output)
+   (show-listing-p :initarg :show-listing :accessor show-listing-p))
+  (:default-initargs :stream *standard-output*
+                     :show-listing T))
 
 (defvar *level* 0)
 
@@ -107,6 +109,10 @@
 
 (defmethod eval-in-context ((report plain) (result result))
   (let ((*level* (1+ *level*)))
+    (call-next-method)))
+
+(defmethod report-on :around (thing (report plain))
+  (when (show-listing-p report)
     (call-next-method)))
 
 (defmethod report-on :before ((result result) (report plain))
