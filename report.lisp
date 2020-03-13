@@ -150,10 +150,9 @@
     (when failures
       (format (output report) "~&~%;; Failures:~%")
       (dolist (failure failures)
-        (when (typep failure 'test-result)
-          (format (output report) "~&~a~%" (format-result failure :extensive))
-          (dolist (failure (results-with-status :failed failure))
-            (format (output report) "~&~a~%~%" (format-result failure :extensive)))))))
+        (if (typep failure 'parent-result)
+            (format (output report) "~&~a~%" (format-result failure :extensive))
+            (format (output report) "~&~a~%~%" (format-result failure :extensive))))))
   report)
 
 (defclass interactive (report)
