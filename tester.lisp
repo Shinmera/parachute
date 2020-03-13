@@ -153,3 +153,12 @@
            (with-forced-status (:skipped ,@(if (listp desc) desc (list desc)))
              (,thunk))
            (,thunk)))))
+
+(defmacro group ((name &optional description &rest format-args) &body tests)
+  `(eval-in-context
+    *context*
+    (make-instance 'group-result
+                   :expression ',name
+                   :body (lambda () ,@tests)
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))))

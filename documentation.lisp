@@ -396,6 +396,15 @@ See PARENT-RESULT")
 See RESULTS
 See PARENT-RESULT")
 
+  (type group-result
+    "A result object for a group of test forms.
+
+Simply evaluates the BODY of tests. Primarily intended for output
+control.
+
+See BODY
+See PARENT-RESULT")
+
   (type test-result
     "A result object for tests.
 
@@ -780,7 +789,13 @@ normal.
 Note that if you have tests that will not /compile/ on a given feature combination, you still
 need to exclude those tests with reader conditionals as well.
 
-See FEATUREP"))
+See FEATUREP")
+
+  (function group
+    "Group the provided tests together under a name.
+
+This is similar to defining a test, but allows the body to share the lexical context
+with the rest of the test forms."))
 
 ;; toolkit.lisp
 (docs:define-docs

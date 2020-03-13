@@ -235,6 +235,26 @@
 (defmethod add-result ((result result) (parent parent-result))
   (vector-push-extend result (results parent)))
 
+(defclass group-result (parent-result)
+  ((body :initarg :body :accessor body)))
+
+(defmethod check-evaluatable (context (result group-result))
+  (check-type (expression result) symbol))
+
+(defmethod format-result ((result group-result) (type (eql :oneline)))
+  (format NIL "~a::~a"
+          (package-name (symbol-package (expression result)))
+          (symbol-name (expression result))))
+
+(defmethod format-result ((result group-result) (type (eql :extensive)))
+  (format NIL "~4d/~4d tests failed in ~a~@[~%~a~]"
+          (length (results-with-status :failed result)) (length (results result))
+          (format-result result :oneline)
+          (description result)))
+
+(defmethod eval-in-context (context (result group-result))
+  (funcall (body result)))
+
 (defclass test-result (parent-result)
   ())
 

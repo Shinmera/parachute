@@ -59,7 +59,11 @@
    #:results
    #:find-child-result
    #:results-with-status
-   #:test-result)
+   #:group-result
+   #:body
+   #:test-result
+   #:controlling-result
+   #:child-status)
   ;; test.lisp
   (:export
    #:test
@@ -93,7 +97,8 @@
    #:finish
    #:with-forced-status
    #:skip
-   #:skip-on)
+   #:skip-on
+   #:group)
   ;; toolkit.lisp
   (:export
    #:featurep
