@@ -44,13 +44,14 @@ Options
     (show-help))
   (let ((loaded-systems ())
         (excluded (ci-utils/coveralls:coverage-excluded))
-        (reporter "plain"))
+        (reporter "plain")
+        (tests ()))
     (loop for args = argv then (rest args)
           for arg = (first args)
           while args
           do (cond ((or (string= "--help" arg) (string= "-h" arg))
                     (show-help)) ; calls uiop:quit
-                   ((or (string= "--help" arg) (string= "-h" arg))
+                   ((or (string= "--quickload" arg) (string= "-l" arg))
                     (push (second args) loaded-systems)
                     (setf args (rest args)))
                    ((or (string= "--exclude" arg) (string= "-e" arg))
