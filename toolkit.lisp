@@ -91,10 +91,13 @@
       value
       (not value)))
 
+(declaim (notinline retain))
+(defun retain (argument) NIL)
+
 (defmacro capture-error (form &optional (condition 'error))
   (let ((err (gensym "ERR")))
     `(handler-case
-         (and ,form NIL)
+         (retain ,form)
        (,condition (,err)
          ,err))))
 
