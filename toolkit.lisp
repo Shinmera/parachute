@@ -83,6 +83,8 @@
                    (when (< i (1- (length thing)))
                      (format output " ")))
           (format output ")"))
+         (condition
+          (format output "[~a] ~a" (type-of thing) thing))
          (T
           (princ thing output)))))))
 
