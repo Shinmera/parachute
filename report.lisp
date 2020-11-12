@@ -99,7 +99,7 @@
   (handler-case
       (call-next-method)
     (error (err)
-      (setf (value result) err)
+      (setf (value result) (if (typep result 'multiple-value-result) (list err) err))
       (setf (status result) :failed))))
 
 (defmethod eval-in-context ((report plain) (result finishing-result))
