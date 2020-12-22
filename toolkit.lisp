@@ -94,7 +94,9 @@
       (not value)))
 
 (declaim (notinline retain))
-(defun retain (argument) NIL)
+(defun retain (argument)
+  (declare (ignore argument))
+  NIL)
 
 (defmacro capture-error (form &optional (condition 'error))
   (let ((err (gensym "ERR")))
