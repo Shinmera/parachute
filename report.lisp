@@ -85,16 +85,21 @@
 (defmethod eval-in-context :around ((report plain) (result result))
   (when (eql :unknown (status result))
     (multiple-value-prog1
-        (handler-case
-            (call-next-method)
-          (error (err)
-            (warn "Unhandled error when evaluating ~a:~%  ~a~%"
-                  (or (ignore-errors (format-result result :oneline))
-                      result)
-                  err)
-            (setf (status result) :failed)
-            (unless *silence-compilation-errors-p*
-              (error err))))
+        (if *silence-compilation-errors-p*
+            (handler-case
+                (call-next-method)
+              (error (err)
+                (warn "Unhandled error when evaluating ~a:~%  ~a~%"
+                      (or (ignore-errors (format-result result :oneline))
+                          result)
+                      err)
+                (setf (status result) :failed)))
+            (let ((ok nil))
+              (unwind-protect
+                   (multiple-value-prog1
+                       (call-next-method)
+                     (setf ok t))
+                (unless ok (setf (status result) :failed)))))
       (report-on result report))))
 
 (defmethod eval-in-context ((report plain) (result value-result))

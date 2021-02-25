@@ -629,6 +629,9 @@ dependencies cannot be updated as there is no backreference.
 See FIND-TEST
 See *TEST-INDEX*")
 
+  (function remove-all-tests-in-package
+    "Remove all tests from PACKAGE (*package* by default).")
+  
   (function define-test
     "Defines a test.
 
@@ -685,6 +688,27 @@ See FIND-TEST
 See REMOVE-TEST
 See REFERENCED-DEPENDENCIES")
 
+  (function define-test+run 
+    "Pass NAME with ARGS-AND-BODY to DEFINE-TEST and, if the form is executed
+(as opposed to being loaded or compiled), run the test and return a summary of
+the results. The first three values are: <test name>, <plain report>, <status>.
+The fourth value, depending on the status, may be (1) in case of
+success/skipped: NIL, (2) in case of failure: (<number of failed expressions>,
+<the first failed expression>) or (3) \"Compilation error.\".  Useful for
+interactivity: define and run the test at once and get the relevant information.
+Compilation errors are not muffled.
+
+See DEFINE-TEST+RUN-INTERACTIVELY
+See PLAIN")
+
+  (function define-test+run-interactively
+    "Pass NAME with ARGS-AND-BODY to DEFINE-TEST and, if the form is executed
+(as opposed to being loaded or compiled), run the test with :REPORT set to
+INTERACTIVE.
+
+See DEFINE-TEST+RUN
+See INTERACTIVE")
+  
   (function test-packages
     "Returns a list of all packages that define tests.
 

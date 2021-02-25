@@ -84,6 +84,7 @@
    #:remove-all-tests-in-package
    #:define-test
    #:define-test+run
+   #:define-test+run-interactively
    #:test-packages
    #:package-tests)
   ;; tester.lisp
