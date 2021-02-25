@@ -8,6 +8,8 @@
 
 (defvar *test-indexes* (make-hash-table :test 'eq))
 
+(defvar *silence-compilation-errors-p* t)
+
 (defclass test ()
   ((name :initarg :name :reader name)
    (home :initarg :home :reader home)
@@ -123,6 +125,12 @@
       (setf (children parent) (remove test (children parent))))
     name))
 
+(defun remove-all-tests-in-package (&optional (package *package*))
+  "Remove all tests from the current PACKAGE (current by default)."
+  (let ((*package* (find-package package))) ; didn't work without this
+    (mapcar (lambda (x) (remove-test (name x)))
+            (package-tests package))))
+
 (defun ensure-test (class &rest initargs)
   (let ((existing (find-test (getf initargs :name) (getf initargs :home)))
         (class (etypecase class
@@ -160,6 +168,29 @@
                               :home ,home
                               ,@body))
            ',name)))))
+
+(defmacro define-test+run (name &body args-and-body)
+  "Pass NAME with ARGS-AND-BODY to `define-test' and, if the form is executed
+(as opposed to being loaded or compiled), run the test and return a summary of
+the results: if there are failures, return the status, the number of failures
+and the first failed expression; otherwise, return just the status and the
+report.  Useful for interactivity: define and run the test at once, see the
+place that needs fixed right away.  Compilation errors are not muffled."
+  `(progn
+     (define-test ,name ,@args-and-body)
+     (eval-when (:execute)
+       (flet ((failed-p (x) (equal :FAILED (status x))))
+         (let* ((*silence-compilation-errors-p* nil)
+                (report (test ',name :report 'plain))
+                (results (results report))
+                (status (status report)))
+           (cond ((member status '(:PASSED :SKIPPED))
+                  (list status report))
+                 ((> (length results) 1)
+                  (list status
+                        (1- (length (remove-if-not #'failed-p results)))
+                        (expression (find-if #'failed-p (subseq results 1)))))
+                 (t (list status "Compilation error."))))))))
 
 (defun test-packages ()
   (loop for k being the hash-keys of *test-indexes*

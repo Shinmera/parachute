@@ -81,7 +81,9 @@
    #:serial
    #:find-test
    #:remove-test
+   #:remove-all-tests-in-package
    #:define-test
+   #:define-test+run
    #:test-packages
    #:package-tests)
   ;; tester.lisp

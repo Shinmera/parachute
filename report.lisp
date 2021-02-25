@@ -92,7 +92,9 @@
                   (or (ignore-errors (format-result result :oneline))
                       result)
                   err)
-            (setf (status result) :failed)))
+            (setf (status result) :failed)
+            (unless *silence-compilation-errors-p*
+              (error err))))
       (report-on result report))))
 
 (defmethod eval-in-context ((report plain) (result value-result))
