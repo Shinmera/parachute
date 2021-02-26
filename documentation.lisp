@@ -457,7 +457,12 @@ See CONTROLLING-RESULT"))
     "A hash-table from packages to hash-tables from strings to test instances.
 
 Contains the maps of packages to tests.")
+  
+  (variable *silence-plain-compilation-errors-p*
+    "Whether PLAIN report should silence errors.
 
+See DEFINE-TEST+RUN")
+  
   (type test
     "Container for test collections.
 
@@ -688,13 +693,20 @@ See FIND-TEST
 See REMOVE-TEST
 See REFERENCED-DEPENDENCIES")
 
+  (variable *postprocessor-for-define-test+run*
+    "Contains a function which takes a list of four values as per
+DEFINE-TEST+RUN and, by default, returns all of them as values (with
+VALUES-LIST).  Its purpose is to easily let you customize the feedback from
+DEFINE-TEST+RUN to your own liking.")
+
   (function define-test+run 
     "Pass NAME with ARGS-AND-BODY to DEFINE-TEST and, if the form is executed
 (as opposed to being loaded or compiled), run the test and return a summary of
 the results. The first three values are: <test name>, <plain report>, <status>.
 The fourth value, depending on the status, may be (1) in case of
 success/skipped: NIL, (2) in case of failure: (<number of failed expressions>,
-<the first failed expression>) or (3) \"Compilation error.\".  Useful for
+<the first failed expression>) or (3) \"Compilation error.\".  You may customize
+the returned values with *POSTPROCESSOR-FOR-DEFINE-TEST+RUN*.  Useful for
 interactivity: define and run the test at once and get the relevant information.
 Compilation errors are not muffled.
 

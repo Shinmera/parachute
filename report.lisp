@@ -82,32 +82,37 @@
   ;; printed with parents after children.
   (report-on result report))
 
+(defmacro maybe-do-not-silence-errors (&body body)
+  `(if *silence-plain-compilation-errors-p*
+       ,@body
+       (let ((ok nil))
+         (unwind-protect
+              (multiple-value-prog1
+                  (call-next-method)
+                (setf ok t))
+           (unless ok (setf (status result) :failed))))))
+
 (defmethod eval-in-context :around ((report plain) (result result))
   (when (eql :unknown (status result))
     (multiple-value-prog1
-        (if *silence-compilation-errors-p*
-            (handler-case
-                (call-next-method)
-              (error (err)
-                (warn "Unhandled error when evaluating ~a:~%  ~a~%"
-                      (or (ignore-errors (format-result result :oneline))
-                          result)
-                      err)
-                (setf (status result) :failed)))
-            (let ((ok nil))
-              (unwind-protect
-                   (multiple-value-prog1
-                       (call-next-method)
-                     (setf ok t))
-                (unless ok (setf (status result) :failed)))))
+        (maybe-do-not-silence-errors
+          (handler-case
+              (call-next-method)
+            (error (err)
+              (warn "Unhandled error when evaluating ~a:~%  ~a~%"
+                    (or (ignore-errors (format-result result :oneline))
+                        result)
+                    err)
+              (setf (status result) :failed))))
       (report-on result report))))
 
 (defmethod eval-in-context ((report plain) (result value-result))
-  (handler-case
-      (call-next-method)
-    (error (err)
-      (setf (value result) (if (typep result 'multiple-value-result) (list err) err))
-      (setf (status result) :failed))))
+  (maybe-do-not-silence-errors
+    (handler-case
+        (call-next-method)
+      (error (err)
+        (setf (value result) (if (typep result 'multiple-value-result) (list err) err))
+        (setf (status result) :failed)))))
 
 (defmethod eval-in-context ((report plain) (result finishing-result))
   (handler-case

@@ -8,7 +8,7 @@
 
 (defvar *test-indexes* (make-hash-table :test 'eq))
 
-(defvar *silence-compilation-errors-p* t)
+(defvar *silence-plain-compilation-errors-p* t)
 
 (defclass test ()
   ((name :initarg :name :reader name)
@@ -167,26 +167,30 @@
                               ,@body))
            ',name)))))
 
+(defparameter *postprocessor-for-define-test+run*
+  (lambda (v) (values-list v)))
+
 (defmacro define-test+run (name &body args-and-body)
   `(progn
      (define-test ,name ,@args-and-body)
      (eval-when (:execute)
        (flet ((failed-p (x) (eql :failed (status x))))
-         (let* ((*silence-compilation-errors-p* nil)
+         (let* ((*silence-plain-compilation-errors-p* nil)
                 (report (test ',name :report 'plain))
                 (results (results report))
                 (status (status report)))
-           (values ',name report status
-                   (cond ((member status '(:passed :skipped)) nil)
-                         ((> (length results) 1)
-                          (list (1- (length (remove-if-not #'failed-p results)))
-                                (expression (find-if #'failed-p (subseq results 1)))))
-                         (t "Compilation error."))))))))
+           (funcall *postprocessor-for-define-test+run*
+                    (list ',name report status
+                          (cond ((member status '(:passed :skipped)) nil)
+                                ((> (length results) 1)
+                                 (list (1- (length (remove-if-not #'failed-p results)))
+                                       (expression (find-if #'failed-p (subseq results 1)))))
+                                (t "Compilation error.")))))))))
 
 (defmacro define-test+run-interactively (name &body args-and-body)
-  `(values (define-test ,name ,@args-and-body)
-           (eval-when (:execute)
-             (test ',name :report 'interactive))))
+  `(progn (define-test ,name ,@args-and-body)
+          (eval-when (:execute)
+            (values ',name (test ',name :report 'interactive)))))
 
 (defun test-packages ()
   (loop for k being the hash-keys of *test-indexes*
