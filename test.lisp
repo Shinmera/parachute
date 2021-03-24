@@ -176,11 +176,10 @@
          (if (member (status report) '(:passed :skipped))
              report
              (values report
-                     (mapcar #'expression
-                             (remove-if
-                              (lambda (x) (or (typep x 'test-result)
-                                              (not (eql :failed (status x)))))
-                              (coerce (results report) 'list)))))))))
+                     (loop for result across (results report)
+                           when (and (not (typep result 'test-result))
+                                     (eql :failed (status result)))
+                           collect (expression result))))))))
 
 (defmacro define-test+run-interactively (name &body args-and-body)
   `(progn (define-test ,name ,@args-and-body)
