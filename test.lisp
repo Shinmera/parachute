@@ -167,25 +167,20 @@
                               ,@body))
            ',name)))))
 
-(defparameter *postprocessor-for-define-test+run*
-  (lambda (v) (values-list v)))
-
 (defmacro define-test+run (name &body args-and-body)
   `(progn
      (define-test ,name ,@args-and-body)
      (eval-when (:execute)
-       (flet ((failed-p (x) (eql :failed (status x))))
-         (let* ((*silence-plain-compilation-errors-p* nil)
-                (report (test ',name :report 'plain))
-                (results (results report))
-                (status (status report)))
-           (funcall *postprocessor-for-define-test+run*
-                    (list ',name report status
-                          (cond ((member status '(:passed :skipped)) nil)
-                                ((> (length results) 1)
-                                 (list (1- (length (remove-if-not #'failed-p results)))
-                                       (expression (find-if #'failed-p (subseq results 1)))))
-                                (t "Compilation error.")))))))))
+       (let* ((*silence-plain-compilation-errors-p* nil) ; must be let*! the order matters!
+              (report (test ',name :report 'plain)))
+         (if (member (status report) '(:passed :skipped))
+             report
+             (values report
+                     (mapcar #'expression
+                             (remove-if
+                              (lambda (x) (or (typep x 'test-result)
+                                              (not (eql :failed (status x)))))
+                              (coerce (results report) 'list)))))))))
 
 (defmacro define-test+run-interactively (name &body args-and-body)
   `(progn (define-test ,name ,@args-and-body)

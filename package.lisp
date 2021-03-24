@@ -85,7 +85,6 @@
    #:define-test
    #:define-test+run
    #:define-test+run-interactively
-   #:*postprocessor-for-define-test+run*
    #:test-packages
    #:package-tests)
   ;; tester.lisp

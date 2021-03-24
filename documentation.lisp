@@ -692,23 +692,18 @@ See TEST
 See FIND-TEST
 See REMOVE-TEST
 See REFERENCED-DEPENDENCIES")
-
-  (variable *postprocessor-for-define-test+run*
-    "Contains a function which takes a list of four values as per
-DEFINE-TEST+RUN and, by default, returns all of them as values (with
-VALUES-LIST).  Its purpose is to easily let you customize the feedback from
-DEFINE-TEST+RUN to your own liking.")
-
+  
   (function define-test+run 
     "Pass NAME with ARGS-AND-BODY to DEFINE-TEST and, if the form is executed
-(as opposed to being loaded or compiled), run the test and return a summary of
-the results. The first three values are: <test name>, <plain report>, <status>.
-The fourth value, depending on the status, may be (1) in case of
-success/skipped: NIL, (2) in case of failure: (<number of failed expressions>,
-<the first failed expression>) or (3) \"Compilation error.\".  You may customize
-the returned values with *POSTPROCESSOR-FOR-DEFINE-TEST+RUN*.  Useful for
-interactivity: define and run the test at once and get the relevant information.
-Compilation errors are not muffled.
+(as opposed to being loaded or compiled), run the test and return a plain
+report.  In case of failure, a list of all failed expressions is returned as the
+second value.  Useful for interactivity: define and run the test at once and get
+the relevant information.  Compilation errors are not muffled when running.
+
+If you wrap this in your own macro and want to avoid test execution on project
+load/compilation, make sure to make the form toplevel and also use (eval-when
+:compile-toplevel :load-toplevel) to define the test, and (eval-when :execute)
+to run this macro.
 
 See DEFINE-TEST+RUN-INTERACTIVELY
 See PLAIN")
