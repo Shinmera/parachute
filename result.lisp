@@ -194,12 +194,17 @@
             (description result))))
 
 (defmethod value-expected-p ((result multiple-value-comparison-result) value expected)
-  (loop for comparison in (comparison result)
-        for value in value
-        for expected in expected
-        always (ignore-errors
-                (geq (funcall comparison value expected)
-                     (comparison-geq result)))))
+  (or (and (null value) (null expected))
+      (and (not (null value)) (not (null expected))
+           (loop for comparison in (comparison result)
+                 for value on value
+                 for expected on expected
+                 always (and (ignore-errors
+                              (geq (funcall comparison (car value) (car expected))
+                                   (comparison-geq result)))
+                             (if (null (cdr value))
+                                 (null (cdr expected))
+                                 (not (null (cdr expected)))))))))
 
 (defmethod check-evaluatable (context (result multiple-value-comparison-result))
   (dolist (comparison (comparison result))
