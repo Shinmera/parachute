@@ -171,7 +171,15 @@
    :comparison '(typep)))
 
 (defmethod format-result ((result multiple-value-comparison-result) (type (eql :extensive)))
-  (let ((*print-right-margin* 600))
+  (let* ((*print-right-margin* 600)
+         (values (value result))
+         (expecteds (expected result))
+         (comparisons (comparison result))
+         (max (max (length values) (length expecteds))))
+    (setf comparisons (replace (make-list max :initial-element '#:<NONE>) comparisons))
+    (setf expecteds (replace (make-list max :initial-element '#:<NO-VALUE>) expecteds))
+    (setf values (replace (make-list max :initial-element '#:<NO-VALUE>) values))
+    (print (list values expecteds))
     (format NIL "The test form ~16t~a~{~%~{~
                  ~d~a value is ~16t~a~%~
                  when ~16t~a~%~
@@ -179,9 +187,9 @@
                  ~@[~%~a~]"
             (print-oneline (value-form result) NIL)
             (loop for i from 1
-                  for comparison in (comparison result)
-                  for value in (value result)
-                  for expected in (expected result)
+                  for comparison in comparisons
+                  for value in values
+                  for expected in expecteds
                   unless (ignore-errors
                           (geq (funcall comparison value expected)
                                (comparison-geq result)))
