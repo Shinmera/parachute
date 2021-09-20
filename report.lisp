@@ -75,6 +75,10 @@
   (:default-initargs :stream *standard-output*
                      :show-listing T))
 
+(defclass summary (plain)
+  ()
+  (:default-initargs :show-listing nil))
+
 (defvar *level* 0)
 
 (defmethod eval-in-context :before ((report plain) (result parent-result))

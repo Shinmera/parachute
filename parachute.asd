@@ -6,7 +6,7 @@
 
 
 (asdf:defsystem parachute
-  :version "1.4.0"
+  :version "1.5.0"
   :license "zlib"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"

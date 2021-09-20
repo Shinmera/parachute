@@ -172,6 +172,14 @@ See SUMMARIZE")
 See REPORT
 See RESULT")
 
+    (type summary
+    "A plain-text report that prints only a summary at the end.
+
+See PLAIN
+See REPORT
+See OUTPUT
+See REPORT-ON")
+
   (type interactive
     "An interactive test report that shows the debugger on every failure, with restarts that allow you to decide what to do next.
 
