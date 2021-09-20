@@ -28,6 +28,7 @@
    #:summarize
    #:quiet
    #:plain
+   #:summary
    #:output
    #:report-on
    #:interactive)
