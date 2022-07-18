@@ -125,5 +125,10 @@
     (T expression)))
 
 (defun call-compile (form)
-  (handler-bind (((or warning #+sbcl sb-ext:compiler-note) #'muffle-warning))
-    (funcall (compile NIL `(lambda () ,form)))))
+  (multiple-value-bind (func warn-p fail-p)
+      (handler-bind (((or warning #+sbcl sb-ext:compiler-note) #'muffle-warning))
+        (compile NIL `(lambda () ,form)))
+    (declare (ignore warn-p))
+    (if fail-p
+        (error "The test form failed to compile:~%~%~s" form)
+        (funcall func))))
