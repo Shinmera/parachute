@@ -110,6 +110,18 @@
                    ,@(when description
                        `(:description (format NIL ,description ,@format-args))))))
 
+(defmacro fail-compile (form &optional (type 'error) description &rest format-args)
+  `(eval-in-context
+    *context*
+    (make-instance 'comparison-result
+                   :expression '(fail-expansion ,form)
+                   :value-form '(nth-value 3 (try-compile ',form ',type))
+                   :body (lambda () (nth-value 3 (try-compile ',form ',type)))
+                   :expected ',(maybe-unquote type)
+                   :comparison 'typep
+                   ,@(when description
+                       `(:description (format NIL ,description ,@format-args))))))
+
 (defmacro of-type (type form &optional description &rest format-args)
   `(eval-in-context
     *context*

@@ -806,6 +806,11 @@ supplied as well for aesthetic purposes.")
   (function fail
     "A tester that succeeds if the form signals an error of the requested type, defaulting to ERROR.")
 
+  (function fail-compile
+    "A tester that succeeds if the form fails to compile.
+
+Note the form will not be executed, only compiled.")
+
   (function of-type
     "A tester that succeeds if the form returns a value that is of the requested type.")
 

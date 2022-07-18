@@ -125,10 +125,23 @@
     (T expression)))
 
 (defun call-compile (form)
-  (multiple-value-bind (func warn-p fail-p)
-      (handler-bind (((or warning #+sbcl sb-ext:compiler-note) #'muffle-warning))
-        (compile NIL `(lambda () ,form)))
+  (multiple-value-bind (func warn-p fail-p fail-error) (try-compile form)
     (declare (ignore warn-p))
     (if fail-p
-        (error "The test form failed to compile:~%~%~s" form)
+        (error "The test form failed to compile~@[~%~a~]" fail-error)
         (funcall func))))
+
+(defun try-compile (form &optional (intercept 'error))
+  ;; This whole rigamarole is to intercept compilation errors.
+  (restart-case
+      (flet ((handle (error previous)
+               (declare (ignore previous))
+               #+sbcl (setf error (first (simple-condition-format-arguments error)))
+               (invoke-restart 'bail NIL NIL T error)))
+        (trivial-custom-debugger:with-debugger (#'handle)
+          (let ((*break-on-signals* intercept)
+                (*error-output* (make-broadcast-stream)))
+            (handler-bind (((or warning #+sbcl sb-ext:compiler-note) #'muffle-warning))
+              (compile NIL `(lambda () ,form))))))
+    (bail (&rest args)
+      (values-list args))))

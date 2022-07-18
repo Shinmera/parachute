@@ -24,4 +24,5 @@
                (:file "report")
                (:file "documentation"))
   :depends-on (:documentation-utils
+               :trivial-custom-debugger
                :form-fiddle))

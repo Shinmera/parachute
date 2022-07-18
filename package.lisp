@@ -97,6 +97,7 @@
    #:is-values
    #:isnt-values
    #:fail
+   #:fail-compile
    #:of-type
    #:finish
    #:with-forced-status
