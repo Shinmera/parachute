@@ -32,7 +32,10 @@
                (setf (status report) :failed)))
     (when (eql :unknown (status report))
       (setf (status report) :passed))
-    (summarize report)))
+    (prog1 (summarize report)
+      (when (and (boundp 'cl-user::*exit-on-test-failures*)
+                 (symbol-value 'cl-user::*exit-on-test-failures*))
+        (uiop:quit (if (eql :failed (status report)) 100 0))))))
 
 (defun test-toplevel (designator/s &rest args)
   (let ((failure NIL))

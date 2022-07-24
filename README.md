@@ -152,7 +152,7 @@ And that should cover most of it. Parachute does not have any fancy ASDF integra
       #|...|#
       :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :test-package)))
 
-This should allow you to run the tests via ASDF like so: `(asdf:test-system :main-system)`.
+This should allow you to run the tests via ASDF like so: `(asdf:test-system :main-system)`. If you are integrating with a remote CI and would like ``asdf:test-system`` to quit with a useful exit code for Parachute systems, set ``cl-user::*exit-on-test-failures*`` to ``T``. This'll cause any invocation of ``test`` to behave like ``test-toplevel``.
 
 ## Compatibility Layers
 Parachute offers "zero-cost switching" by implementing basic compatibility layers that simulate another test framework's syntax and behaviour. This allows you to switch over from another test framework hopefully without having to change a single test in your suite.
