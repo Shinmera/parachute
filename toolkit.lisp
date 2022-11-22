@@ -66,6 +66,10 @@
                 ((eql 'function (first thing))
                  (format output "#'")
                  (print-oneline (second thing) output))
+                (*print-circle*
+                 ;; Anything is better than dying.  Anything.
+                 (let ((*print-lines* 1))
+                   (princ thing output)))
                 (T
                  (format output "(")
                  (loop for (car . cdr) on thing
