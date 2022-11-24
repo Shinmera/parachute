@@ -138,11 +138,7 @@
   (format (output report)
           "~& ~:[      ~;~:*~6,3f~] ~a~v@{  ~} "
           (duration result)
-          (case (status result)
-            (:passed  #+asdf-unicode "✔" #-asdf-unicode "o")
-            (:failed  #+asdf-unicode "✘" #-asdf-unicode "x")
-            (:skipped #+asdf-unicode "ー" #-asdf-unicode "-")
-            (T        #+asdf-unicode "？" #-asdf-unicode "?"))
+          (status-character (status result))
           *level* T))
 
 (defmethod report-on :after (thing (report plain))

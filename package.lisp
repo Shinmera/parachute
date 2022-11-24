@@ -107,4 +107,5 @@
   ;; toolkit.lisp
   (:export
    #:featurep
-   #:with-shuffling))
+   #:with-shuffling
+   #:status-character))

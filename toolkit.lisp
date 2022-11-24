@@ -144,3 +144,10 @@
               (compile NIL `(lambda () ,form))))))
     (bail (&rest args)
       (values-list args))))
+
+(defun status-character (status)
+  (case status
+    (:passed  #+asdf-unicode "✔" #-asdf-unicode "o")
+    (:failed  #+asdf-unicode "✘" #-asdf-unicode "x")
+    (:skipped #+asdf-unicode "ー" #-asdf-unicode "-")
+    (T        #+asdf-unicode "？" #-asdf-unicode "?")))
