@@ -218,21 +218,31 @@
 
 (defun resolve-dependency-combination (combination test)
   (destructuring-bind (logop &rest combinations) combination
-    (flet ((find-test (name home)
-             (or (find-test name home)
-                 (cerror "Ignore the dependency."
-                         "The reference to the dependency ~a of ~a cannot be found within ~a."
-                         name (name test) home))))
-      (list* logop
-             (loop for comb in combinations
-                   for dep = (if (listp comb)
-                                 (cond ((find (first comb) '(:and :or :not))
-                                        (resolve-dependency-combination comb test))
-                                       ((= 2 (length comb))
-                                        (find-test (second comb) (first comb)))
-                                       (T (cerror "Ignore" "Malformed dependency spec: ~s" comb)))
-                                 (find-test comb (home test)))
-                   when dep collect dep)))))
+    (let ((parents (loop for parent = test then (parent parent)
+                         while parent
+                         collect parent)))
+      (flet ((find-test (name home)
+               (let ((dep (find-test name home)))
+                 (cond ((null dep)
+                        (cerror "Ignore the dependency."
+                                "The reference to the dependency ~a of ~a cannot be found within ~a."
+                                name (name test) home))
+                       ((find dep parents)
+                        (cerror "Ignore the dependency."
+                                "Cannot depend on test ~a as it is an ancestor of ~a."
+                                dep test))
+                       (T
+                        dep)))))
+        (list* logop
+               (loop for comb in combinations
+                     for dep = (if (listp comb)
+                                   (cond ((find (first comb) '(:and :or :not))
+                                          (resolve-dependency-combination comb test))
+                                         ((= 2 (length comb))
+                                          (find-test (second comb) (first comb)))
+                                         (T (cerror "Ignore" "Malformed dependency spec: ~s" comb)))
+                                   (find-test comb (home test)))
+                     when dep collect dep))))))
 
 (defun eval-dependency-combination (context combination)
   (destructuring-bind (logop &rest combinations) combination
