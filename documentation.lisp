@@ -893,13 +893,7 @@ By default only subconditions of ERROR are caught.")
     "Quotes the expression if it is necessary to do so.
 
 It is considered unnecessary to quote the expression if:
-  - The expression is a list that has one of the following symbols as its
-    first element:
-    - QUOTE
-    - LAMBDA
-    - FUNCTION
-    - SB-INT:QUASIQUOTE
-    - SI:QUASIQUOTE
+  - The expression isnt an atom
   - It is constant under CONSTANTP
 
 Implementations other than SBCL and ECL are \"out of luck\" when it comes

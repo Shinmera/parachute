@@ -110,14 +110,9 @@
          ,err))))
 
 (defun maybe-quote (expression)
-  (typecase expression
-    (list (case (first expression)
-            ((quote lambda function #+ecl si:quasiquote)
-             expression)
-            (T `',expression)))
-    (T (if (constantp expression)
-           expression
-           `',expression))))
+  (if (or (listp expression) (constantp expression))
+      expression
+      `',expression))
 
 ;;; THIS IS A BAD IDEA AND I DON'T REMEMBER WHY I ADDED IT.
 (defun maybe-unquote (expression)
