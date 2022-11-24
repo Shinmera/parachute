@@ -36,11 +36,6 @@
 
 (defmethod shared-initialize :after ((test test) slots &key parent home name)
   (declare (ignore slots))
-  ;; We dereference the dependencies at a later point so just warn for now.
-  (handler-bind ((error (lambda (err)
-                          (warn (princ-to-string err))
-                          (continue err))))
-    (dependencies test))
   (when parent
     (let* ((home (if (listp parent) (first parent) home))
            (parent (if (listp parent) (second parent) parent))
@@ -48,7 +43,12 @@
       (unless found
         (error "Could not find a parent by the name of ~a within ~a's home ~a!"
                parent name home))
-      (setf (parent test) found))))
+      (setf (parent test) found)))
+  ;; We dereference the dependencies at a later point so just warn for now.
+  (handler-bind ((error (lambda (err)
+                          (warn (princ-to-string err))
+                          (continue err))))
+    (dependencies test)))
 
 (defmethod print-object ((test test) stream)
   (print-unreadable-object (test stream :type T)
