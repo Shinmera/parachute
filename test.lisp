@@ -58,6 +58,8 @@
   (let ((deps (referenced-dependencies test)))
     (unless (find (car deps) '(:and :or :not))
       (push :and deps))
+    (when (parent test)
+      (setf deps (list :and deps (dependencies (find-test (parent test))))))
     (resolve-dependency-combination deps test)))
 
 (defmethod skipped-children ((test test))
