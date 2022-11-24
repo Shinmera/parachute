@@ -211,7 +211,7 @@
         for child in (children test)
         for subresult = (result-for-testable child context)
         do (when (find child skipped)
-             (setf (status child) :skipped))
+             (setf (status subresult) :skipped))
            (eval-in-context context subresult)))
 
 (defun resolve-dependency-combination (combination test)
