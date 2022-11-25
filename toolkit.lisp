@@ -37,6 +37,25 @@
                                     collect `(lambda () ,form)))))
        (funcall ,thunk))))
 
+#+sbcl
+(deftype timeout () 'sb-ext:timeout)
+#-sbcl
+(define-condition timeout (error) ())
+
+(defmacro with-timeout (timeout &body body)
+  #+clisp
+  `(mt:with-timeout (,timeout (error 'timeout))
+     ,@body)
+  #+(or allegro cmucl)
+  `(mp:with-timeout (,timeout (error 'timeout))
+     ,@body)
+  #+sbcl
+  `(sb-ext:with-timeout ,timeout
+     ,@body)
+  #-(or allegro clisp cmucl sbcl)
+  `(progn
+     ,@body))
+
 (defun removef (place &rest indicators)
   (loop for (k v) on place by #'cddr
         for found = (find k indicators)

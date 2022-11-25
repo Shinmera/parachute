@@ -8,7 +8,8 @@
 
 (defvar *test-indexes* (make-hash-table :test 'eq))
 
-(defvar *silence-plain-compilation-errors-p* t)
+(defvar *silence-plain-compilation-errors-p* T)
+(defvar *abort-on-timeout-p* NIL)
 
 (defclass test ()
   ((name :initarg :name :reader name)
@@ -208,8 +209,12 @@
       (call-next-method))))
 
 (defmethod eval-in-context (context (test test))
-  (loop for test in (tests test)
-        do (funcall test)))
+  (if (and *abort-on-timeout-p* (time-limit test))
+      (with-timeout (time-limit test)
+        (loop for test in (tests test)
+              do (funcall test)))
+      (loop for test in (tests test)
+            do (funcall test))))
 
 (defmethod eval-in-context :after (context (test test))
   (loop with skipped = (skipped-children test)

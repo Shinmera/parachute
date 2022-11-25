@@ -69,6 +69,7 @@
   ;; test.lisp
   (:export
    #:*silence-plain-compilation-errors-p*
+   #:*abort-on-timeout-p*
    #:test
    #:name
    #:home

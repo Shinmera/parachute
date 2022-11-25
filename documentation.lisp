@@ -478,6 +478,17 @@ Contains the maps of packages to tests.")
     "Whether PLAIN report should silence errors.
 
 See DEFINE-TEST+RUN")
+
+  (variable *abort-on-timeout-p*
+    "Whether the implementation should try to abort tests that exceed their time-limit.
+
+This defaults to NIL and will only abort on supported
+implementations. Note that using this switch will basically cause
+unwinds to happen whenever the time limit exceeds, which can cause all
+sorts of problems, as it is unpredictable exactly where in the code it
+occurs.
+
+See TIME-LIMIT")
   
   (type test
     "Container for test collections.

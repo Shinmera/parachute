@@ -78,3 +78,7 @@
 
 (define-test bad-test
   (is something 'a 'a))
+
+(define-test kill
+  :time-limit 1
+  (dotimes (i 20) (sleep 0.1)))

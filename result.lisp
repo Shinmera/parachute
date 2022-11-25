@@ -53,7 +53,8 @@
     (multiple-value-prog1
         (let ((start (get-internal-real-time)))
           (unwind-protect
-               (call-next-method)
+               (handler-case (call-next-method)
+                 (timeout ()))
             (setf (duration result) (/ (- (get-internal-real-time) start)
                                        internal-time-units-per-second))))
       ;; Mark ourselves as passed if we didn't already set the status.    
