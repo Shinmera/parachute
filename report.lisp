@@ -110,6 +110,7 @@
                     (or (ignore-errors (format-result result :oneline))
                         result)
                     err)
+              (setf (description result) (format NIL "The test failed to evaluate properly:~%  ~a" err))
               (setf (status result) :failed))))
       (report-on result report))))
 
