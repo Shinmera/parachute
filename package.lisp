@@ -68,6 +68,7 @@
    #:child-status)
   ;; test.lisp
   (:export
+   #:*silence-plain-compilation-errors-p*
    #:test
    #:name
    #:home
