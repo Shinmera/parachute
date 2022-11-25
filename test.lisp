@@ -202,11 +202,14 @@
 
 (defmethod check-evaluatable (context (test test)))
 
-(defmethod eval-in-context (context (test test))
+(defmethod eval-in-context :around (context (test test))
   (let ((*package* (home test)))
     (with-fixtures (fixtures test)
-      (loop for test in (tests test)
-            do (funcall test)))))
+      (call-next-method))))
+
+(defmethod eval-in-context (context (test test))
+  (loop for test in (tests test)
+        do (funcall test)))
 
 (defmethod eval-in-context :after (context (test test))
   (loop with skipped = (skipped-children test)
