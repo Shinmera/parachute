@@ -170,6 +170,33 @@
             (format (output report) "~&~a~%~%" (format-result failure :extensive))))))
   report)
 
+(defclass largescale (summary)
+  ())
+
+(defmethod summarize ((report largescale))
+  (let* ((total (length (results report)))
+         (failures (results-with-status :failed report))
+         (passed (length (results-with-status :passed report)))
+         (failed (length failures))
+         (skipped (length (results-with-status :skipped report))))
+    (format (output report)
+            "~&
+Total:   ~9,,'':d
+Passed:  ~9,,'':d (~3d%)
+Failed:  ~9,,'':d (~3d%)
+Skipped: ~9,,'':d (~3d%)~%"
+            total passed (round (/ passed total 1/100))
+            failed (round (/ failed total 1/100))
+            skipped (round (/ skipped total 1/100)))
+    (when failures
+      (format (output report) "~&~%;; Failures: (limited to 5)~%")
+      (let ((count 0))
+        (dolist (failure failures)
+          (unless (typep failure 'parent-result)
+            (format (output report) "~&~a~%~%" (format-result failure :extensive))
+            (when (< 5 (incf count))
+              (return))))))))
+
 (defclass interactive (report)
   ())
 

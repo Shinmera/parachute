@@ -31,6 +31,7 @@
    #:summary
    #:output
    #:report-on
+   #:largescale
    #:interactive)
   ;; result.lisp
   (:export

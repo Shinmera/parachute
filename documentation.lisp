@@ -172,7 +172,7 @@ See SUMMARIZE")
 See REPORT
 See RESULT")
 
-    (type summary
+  (type summary
     "A plain-text report that prints only a summary at the end.
 
 See PLAIN
@@ -180,6 +180,14 @@ See REPORT
 See OUTPUT
 See REPORT-ON")
 
+  (type largescale
+    "A plain-text report that prints a summary suitable for large-scale test suites.
+
+This differs from the basic SUMMARY in that it reports percentages,
+and only prints the first 5 failures if there are any.
+
+See SUMMARY")
+    
   (type interactive
     "An interactive test report that shows the debugger on every failure, with restarts that allow you to decide what to do next.
 
