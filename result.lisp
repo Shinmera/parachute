@@ -272,9 +272,10 @@
   ())
 
 (defmethod format-result ((result test-result) (type (eql :oneline)))
-  (format NIL "~a::~a"
-          (package-name (home (expression result)))
-          (name (expression result))))
+  (let ((name (name (expression result))))
+    (format NIL "~a::~a"
+            (package-name (home (expression result)))
+            (if (symbolp name) (symbol-name name) name))))
 
 (defmethod format-result ((result test-result) (type (eql :extensive)))
   (format NIL "~4d/~4d tests failed in ~a~@[~%~a~]"
