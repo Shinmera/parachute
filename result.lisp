@@ -48,6 +48,7 @@
 (defmethod eval-in-context :around (context (result result))
   ;; Unless the status is unknown marked we should probably skip.
   (when (eql :unknown (status result))
+    (setf (status result) :tentative)
     ;; Make sure we are evaluatable.
     (check-evaluatable context result)
     (multiple-value-prog1
@@ -58,8 +59,13 @@
             (setf (duration result) (/ (- (get-internal-real-time) start)
                                        internal-time-units-per-second))))
       ;; Mark ourselves as passed if we didn't already set the status.    
-      (when (eql :unknown (status result))
+      (unless (result-complete-p result)
         (setf (status result) :passed)))))
+
+(defmethod result-complete-p ((result result))
+  (let ((status (status result)))
+    (not (or (eql :unknown status)
+             (eql :tentative status)))))
 
 (defclass value-result (result)
   ((value :initarg :value :accessor value)
@@ -100,9 +106,9 @@
          (multiple-value-prog1
              (call-next-method)
            (setf (value result) NIL)
-           (when (eql :unknown (status result))
+           (unless (result-complete-p result)
              (setf (status result) :passed))))
-    (when (eql :unknown (status result))
+    (unless (result-complete-p result)
       (setf (status result) :failed))))
 
 (defmethod format-result ((result finishing-result) (type (eql :extensive)))
@@ -160,7 +166,7 @@
 (defmethod eval-in-context (context (result comparison-result))
   (multiple-value-prog1
       (call-next-method)
-    (when (eql :unknown (status result))
+    (unless (result-complete-p result)
       (if (value-expected-p result (value result) (expected result))
           (setf (status result) :passed)
           (setf (status result) :failed)))))
