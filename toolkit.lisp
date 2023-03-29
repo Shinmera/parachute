@@ -43,7 +43,7 @@
 (define-condition timeout (error) ())
 
 (defmacro with-timeout (timeout &body body)
-  #+clisp
+  #+(and clisp mt)
   `(mt:with-timeout (,timeout (error 'timeout))
      ,@body)
   #+(or allegro cmucl)
@@ -52,7 +52,7 @@
   #+sbcl
   `(sb-ext:with-timeout ,timeout
      ,@body)
-  #-(or allegro clisp cmucl sbcl)
+  #-(or allegro (and clisp mt) cmucl sbcl)
   `(progn
      ,@body))
 
