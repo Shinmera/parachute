@@ -936,5 +936,5 @@ that are unresolvable.")
 have the status values of :passed, :failed, :skipped, :tentative and
 :unknown.")
 
-  (function status-characters
+  (function status-character
     "Return the appropriate status indicator for a specific result status."))
