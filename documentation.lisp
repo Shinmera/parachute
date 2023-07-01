@@ -929,4 +929,12 @@ this will error if the quasiquote contains any form of lexical references
 that are unresolvable.")
 
   (function call-compile
-    "Compiles the form with muffled warnings and calls the resulting function."))
+    "Compiles the form with muffled warnings and calls the resulting function.")
+
+  (variable *status-characters*
+    "A plist which maps status values to a strings used in reports. Should
+have the status values of :passed, :failed, :skipped, :tentative and
+:unknown.")
+
+  (function status-characters
+    "Return the appropriate status indicator for a specific result status."))
