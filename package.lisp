@@ -111,5 +111,5 @@
   (:export
    #:featurep
    #:with-shuffling
-   #:*status-characters*
+   #:*status-indicators*
    #:status-character))

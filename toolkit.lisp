@@ -164,7 +164,7 @@
     (bail (&rest args)
       (values-list args))))
 
-(defvar *status-characters*
+(defvar *status-indicators*
   '(:passed    #+asdf-unicode "✔" #-asdf-unicode "o"
     :failed    #+asdf-unicode "✘" #-asdf-unicode "x"
     :skipped   #+asdf-unicode "ー" #-asdf-unicode "-"
@@ -172,4 +172,4 @@
     :unknown   #+asdf-unicode "？" #-asdf-unicode "?"))
 
 (defun status-character (status)
-  (getf *status-characters* status "?"))
+  (getf *status-indicators* status "?"))
