@@ -937,4 +937,5 @@ have the status values of :passed, :failed, :skipped, :tentative and
 :unknown.")
 
   (function status-character
-    "Return the appropriate status indicator for a specific result status."))
+    "Return the appropriate status indicator for a specific result status. See
+*STATUS-INDICATORS*."))
