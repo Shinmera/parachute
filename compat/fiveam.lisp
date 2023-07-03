@@ -1,9 +1,3 @@
-#|
- This file is a part of parachute
- (c) 2016 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
- Author: Nicolas Hafner <shinmera@tymoon.eu>
-|#
-
 (in-package #:cl-user)
 (defpackage #:org.shirakumo.parachute.5am
   (:nicknames #:5am #:parachute-5am #:fiveam #:parachute-fiveam)
