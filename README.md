@@ -196,3 +196,10 @@ It should be possible to get any kind of reporting behaviour you want by adding 
 Since you can control pretty much every aspect of evaluation rather closely, very different behaviours and recovery mechanisms are also possible to achieve. One final aspect to note is `result-for-testable`, which should return an appropriate result object for the given testable. This should only return fresh result objects if no result is already known for the testable in the given context. The standard tests provide for this, however they only ever return a standard `test-result` instance. If you need to customise the behaviour of the evaluation for that part, it would be a wise idea to subclass `test-result` and make sure to return instances thereof from `result-for-testable` for your report.
 
 Finally it should be noted that if you happen to create new `result` types that you might want to run using the default reports, you should add methods to `format-result` that specialise on the keywords `:oneline` and `:extensive` for the type. These should return a string containing an appropriate description of the test in one line or extensively, respectively. This will allow you to customise how things look to some degree without having to create a new report object entirely.
+
+## Support
+If you'd like to support the continued development of Parachute, please consider becoming a backer on Patreon:
+
+<a href="https://patreon.com/shinmera">
+  <img alt="Patreon" src="https://filebox.tymoon.eu//file/TWpjeU9RPT0=" />
+</a>
