@@ -180,7 +180,6 @@
     (setf comparisons (replace (make-list max :initial-element '#:<NONE>) comparisons))
     (setf expecteds (replace (make-list max :initial-element '#:<NO-VALUE>) expecteds))
     (setf values (replace (make-list max :initial-element '#:<NO-VALUE>) values))
-    (print (list values expecteds))
     (format NIL "The test form ~16t~a~{~%~{~
                  ~d~a value is ~16t~a~%~
                  when ~16t~a~%~
