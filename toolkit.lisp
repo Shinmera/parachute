@@ -31,6 +31,14 @@
                                     collect `(lambda () ,form)))))
        (funcall ,thunk))))
 
+(defun read-symbol (string &optional (package *package*))
+  (intern (ecase (readtable-case *readtable*)
+            (:upcase (string-upcase string))
+            (:downcase (string-downcase string))
+            (:preserve string)
+            (:invert (map 'string (lambda (c) (if (upper-case-p c) (char-downcase c) (char-upcase c))) string)))
+          package))
+
 #+sbcl
 (deftype timeout () 'sb-ext:timeout)
 #-sbcl

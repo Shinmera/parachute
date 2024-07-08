@@ -701,6 +701,13 @@ multiple packages.
 Note that the dependencies of the test can be a combined by logic operators
 of :AND :OR and :NOT. See REFERENCED-DEPENDENCIES for the necessary structure.
 
+The karg :DEFUN directs whether a simple function definition should be
+emitted alongside the test definition, which simply calls TEST on the
+defined test. The function name will be the same as the test name
+interned into the current package, and transformed according to the
+current readtable case. The emitted function will accept the same
+keyword arguments as TEST.
+
 If the test object to be defined already exists, the existing instance is
 updated as necessary instead of creating a new one. The update proceeds in two
 steps: If the requested :TEST-CLASS is different from the instance's class the
