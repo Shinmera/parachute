@@ -107,9 +107,11 @@
     ;; Add the test to the children list directly. We can't do that in the class'
     ;; init function as then the child would be removed again in the above call.
     (when (parent test-instance)
-      (setf (children (parent test-instance))
-            (list* test-instance (remove (name test-instance) (children (parent test-instance))
-                                         :key #'name :test #'equal))))
+      (let ((index (position (name test-instance) (children (parent test-instance))
+                             :key #'name :test #'equal)))
+        (if index
+            (setf (nth index (children (parent test-instance))) test-instance)
+            (setf (children (parent test-instance)) (nconc (children (parent test-instance)) (list test-instance))))))
     (setf (gethash (string name) index) test-instance)))
 
 (defun remove-test (name &optional package-ish)
