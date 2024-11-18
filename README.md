@@ -48,6 +48,12 @@ Often times it also makes sense to organise tests according to a hierarchy. For 
       (define-test other-test
          #|...|#))
 
+If the parent suite is another package, then use this syntax:
+
+    (define-test test-a
+      :parent (some/other/package suite)
+      #|...|#)
+
 Sometimes it is then useful to skip children if you know that they are either faulty or incomplete and shouldn't yet be tested as part of the greater scheme.
 
     (define-test suite
