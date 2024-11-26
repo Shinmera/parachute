@@ -145,7 +145,7 @@
     (form-fiddle:with-body-options (body options parent home (test-class 'test) (compile-at :compile-time) defun) arguments-and-body
       (let ((body (remove 'define-test body :key (lambda (a) (when (listp a) (car a))) :test #'eql))
             (defs (remove 'define-test body :key (lambda (a) (when (listp a) (car a))) :test-not #'eql))
-            (home-form `(find-package ,(package-name (or home *package*)))))
+            (home-form (or home `(find-package ,(package-name *package*)))))
         (when (and parent nparent)
           (error "Cannot specify parent through name and through a keyword argument at the same time!"))
         `(let ((*package* (find-package ,(package-name *package*)))) ; Make sure package stays consistent throughout initialisation.
