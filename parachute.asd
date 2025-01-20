@@ -19,3 +19,8 @@
   :depends-on (:documentation-utils
                :trivial-custom-debugger
                :form-fiddle))
+
+(asdf:defsystem parachute/example
+  :components ((:file "example"))
+  :depends-on (:parachute)
+  :perform (test-op (op c) (uiop:symbol-call :parachute :test :org.shirakumo.parachute.example)))

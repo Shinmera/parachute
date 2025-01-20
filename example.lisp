@@ -1,4 +1,6 @@
-(in-package #:org.shirakumo.parachute)
+(defpackage #:org.shirakumo.parachute.example
+  (:use #:cl #:parachute))
+(in-package #:org.shirakumo.parachute.example)
 
 (define-test dependency
   (false (sleep 1)))
@@ -76,3 +78,6 @@
 (define-test kill
   :time-limit 1
   (dotimes (i 20) (sleep 0.1)))
+
+(define-test capture
+  (fail-compile (defun foo () (frob)) style-warning))
