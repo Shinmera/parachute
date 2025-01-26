@@ -29,7 +29,7 @@
     (prog1 (summarize report)
       (when (and (boundp 'cl-user::*exit-on-test-failures*)
                  (symbol-value 'cl-user::*exit-on-test-failures*))
-        (uiop:quit (if (eql :failed (status report)) 100 0))))))
+        (quit (if (eql :failed (status report)) 100 0))))))
 
 (defun test-toplevel (designator/s &rest args)
   (let ((failure NIL))
@@ -37,7 +37,7 @@
           for report = (apply #'test test args)
           do (when (eql :failed (status report))
                (setf failure T)))
-    (uiop:quit (if failure 100 0))))
+    (quit (if failure 100 0))))
 
 (defclass report (parent-result)
   ())
