@@ -8,18 +8,22 @@
     (call-next-method)))
 
 (defmethod result-for-testable ((test test) context)
-  (make-instance 'test-result :expression test))
+  (make-instance 'test-result
+                 :expression test
+                 :source-location (source-location test)))
 
 (defclass result ()
   ((expression :initarg :expression :accessor expression)
    (status :initarg :status :accessor status)
    (duration :initarg :duration :accessor duration)
-   (description :initarg :description :accessor description))
+   (description :initarg :description :accessor description)
+   (source-location :initarg :source-location :accessor source-location))
   (:default-initargs
    :expression (error "EXPRESSION required.")
    :status :unknown
    :duration NIL
-   :description NIL))
+   :description NIL
+   :source-location NIL))
 
 (defmethod initialize-instance :after ((result result) &key)
   (when *parent* (add-result result *parent*))
@@ -52,7 +56,7 @@
                  (timeout ()))
             (setf (duration result) (/ (- (get-internal-real-time) start)
                                        internal-time-units-per-second))))
-      ;; Mark ourselves as passed if we didn't already set the status.    
+      ;; Mark ourselves as passed if we didn't already set the status.
       (unless (result-complete-p result)
         (setf (status result) :passed)))))
 

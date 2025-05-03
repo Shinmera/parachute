@@ -16,7 +16,8 @@
    (time-limit :initarg :time-limit :accessor time-limit)
    (skipped-children :initarg :skip :initarg :skipped-children :accessor referenced-skips)
    (tests :initarg :tests :accessor tests)
-   (serial :initarg :serial :accessor serial))
+   (serial :initarg :serial :accessor serial)
+   (source-location :initarg :source-location :accessor source-location))
   (:default-initargs
    :name (error "NAME required.")
    :home *package*
@@ -27,7 +28,8 @@
    :time-limit NIL
    :skipped-children NIL
    :serial T
-   :tests ()))
+   :tests ()
+   :source-location NIL))
 
 (defmethod shared-initialize :after ((test test) slots &key parent home name)
   (declare (ignore slots))
@@ -159,7 +161,8 @@
                                                              (:execute `(lambda () (call-compile ',form))))))
                               :parent ',(or parent nparent)
                               ,@(loop for option in options
-                                      collect `',option)))
+                                      collect `',option)
+                              :source-location ',(trivial-source-location:current-source-location)))
            ,@(loop for (def subname . body) in defs
                    collect `(,def (,name ,subname)
                               :home ,home

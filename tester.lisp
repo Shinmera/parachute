@@ -10,7 +10,8 @@
                    :expected 'T
                    :comparison 'geq
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
 
 (defmacro false (form &optional description &rest format-args)
   `(eval-in-context
@@ -22,7 +23,8 @@
                    :expected 'NIL
                    :comparison 'geq
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
 
 (defmacro is (comp expected form &optional description &rest format-args)
   `(eval-in-context
@@ -34,7 +36,8 @@
                    :expected ,expected
                    :comparison ,(maybe-quote comp)
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
 
 (defmacro isnt (comp expected form &optional description &rest format-args)
   `(eval-in-context
@@ -75,7 +78,8 @@
                      :expected (list ,@expected)
                      :comparison (list ,@comparison)
                      ,@(when description
-                         `(:description (format NIL ,description ,@format-args)))))))
+                         `(:description (format NIL ,description ,@format-args)))
+                     :source-location ',(trivial-source-location:current-source-location)))))
 
 (defmacro isnt-values (form &body body)
   (multiple-value-bind (comp-expected expected comparison description format-args)
@@ -90,7 +94,8 @@
                      :comparison (list ,@comparison)
                      :comparison-geq NIL
                      ,@(when description
-                         `(:description (format NIL ,description ,@format-args)))))))
+                         `(:description (format NIL ,description ,@format-args)))
+                     :source-location ',(trivial-source-location:current-source-location)))))
 
 (defmacro fail (form &optional (type 'error) description &rest format-args)
   `(eval-in-context
@@ -102,7 +107,8 @@
                    :expected ',(maybe-unquote type)
                    :comparison 'typep
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
 
 (defmacro fail-compile (form &optional (type 'error) description &rest format-args)
   `(eval-in-context
@@ -114,7 +120,8 @@
                    :expected ',(maybe-unquote type)
                    :comparison 'typep
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
 
 (defmacro of-type (type form &optional description &rest format-args)
   `(eval-in-context
@@ -126,7 +133,8 @@
                    :expected ',(maybe-unquote type)
                    :comparison 'typep
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
 
 (defmacro finish (form &optional description &rest format-args)
   `(eval-in-context
@@ -135,7 +143,8 @@
                    :expression '(finish ,form)
                    :body (lambda () ,form)
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
 
 (defmacro with-forced-status ((status &optional description &rest format-args) &body tests)
   `(eval-in-context
@@ -145,7 +154,8 @@
                    :child-status ,status
                    :body (lambda () ,@tests)
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
 
 (defmacro skip (desc &body tests)
   `(with-forced-status (:skipped ,@(if (listp desc) desc (list desc)))
@@ -167,4 +177,5 @@
                    :expression ',name
                    :body (lambda () ,@tests)
                    ,@(when description
-                       `(:description (format NIL ,description ,@format-args))))))
+                       `(:description (format NIL ,description ,@format-args)))
+                   :source-location ',(trivial-source-location:current-source-location))))
