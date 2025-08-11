@@ -4,9 +4,9 @@
   :author "Yukari Hafner <shinmera@tymoon.eu>"
   :maintainer "Yukari Hafner <shinmera@tymoon.eu>"
   :description "An extensible and cross-compatible testing framework."
-  :homepage "https://Shinmera.github.io/parachute/"
-  :bug-tracker "https://github.com/Shinmera/parachute/issues"
-  :source-control (:git "https://github.com/Shinmera/parachute.git")
+  :homepage "https://shinmera.com/docs/parachute/"
+  :bug-tracker "https://shinmera.com/project/parachute/issues"
+  :source-control (:git "https://shinmera.com/project/parachute.git")
   :serial T
   :components ((:file "package")
                (:file "toolkit")
