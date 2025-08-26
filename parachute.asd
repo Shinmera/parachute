@@ -18,6 +18,7 @@
                (:file "documentation"))
   :depends-on (:documentation-utils
                :trivial-custom-debugger
+               :trivial-source-location
                :form-fiddle))
 
 (asdf:defsystem parachute/example
